@@ -20,8 +20,11 @@ Tasks:
   - `<footer>` — "Powered by Duo3DLab"
 - [ ] Inside `#content`, the form `<form id="calc-form">` with five `<section>` elements:
   - `#s-print` — Print Parameters (weight, pieces_per_cycle[default=1], print_h, print_min, filament_price)
+  - `.ad-inline` (ad 1 — Ana Faria Ateliê) — hidden on desktop, shown on mobile
   - `#s-machine` — Machine & Operations (working_h, working_days, labor_rate, elec_rate, printer_price, failure_rate[default=10])
+  - `.ad-inline` (ad 2 — Nothavel) — hidden on desktop, shown on mobile
   - `#s-postproc` — Post-Processing (postproc_minutes — unit is minutes, not hours)
+  - `.ad-inline` (ad 3 — Panda Juju) — hidden on desktop, shown on mobile
   - `#s-packing` — Accessories & Packing (accessories_cost, box_size select[default=S])
   - `#s-pricing` — Pricing (margin, selling_price)
 - [ ] `<button id="btn-calculate">` below the form
@@ -61,11 +64,17 @@ Tasks:
 - [ ] Search buttons (Google/Etsy/MakerWorld): inline pill buttons with brand-ish colors
 - [ ] Export PDF button: outlined style, aligned right
 - [ ] Language toggle: two inline text buttons, active state underlined/bold
-- [ ] Ad images — fluid sizing, no fixed pixel constraints:
-  - Top banner (`.ad-top-link`, `.ad-top-img`): `display: block; width: 100%; height: auto` — image fills the full viewport width, height follows aspect ratio
-  - Sidebar ads (`.ad-side-img`): `width: 100%; height: auto` — each image fills the 300 px column, height follows aspect ratio
-  - Hover: subtle opacity fade on top; opacity + slight scale on sidebar
-- [ ] Responsive: on < 900px sidebar collapses below content; ad images continue to fill 100 % column width at any size
+- [ ] Ad images — fluid sizing:
+  - Top banner: `width: auto; max-width: 100%; max-height: 90px; object-fit: contain`
+  - Sidebar ads (`.ad-side-img`): `width: 60%; height: auto`
+  - Inline ads (`.ad-inline-img`): `width: 60%; max-width: 220px; height: auto`, centred
+- [ ] Responsive layout — breakpoint 900 px:
+  - ≥ 900 px: two-column grid (`1fr 300px`); `#sidebar` visible; `.ad-inline` hidden (`display: none`)
+  - < 900 px: single column; `#sidebar` hidden (`display: none`); `.ad-inline` shown (`display: block`)
+- [ ] Mobile UX:
+  - `body`: `overflow-x: hidden` to prevent horizontal scroll
+  - Inputs and selects: `min-height: 44px` on mobile for touch targets
+  - Field rows collapse to single column on < 480 px (already in place)
 
 **Deliverable:** Styled, responsive page that looks correct in both dark and light mode with placeholder content.
 

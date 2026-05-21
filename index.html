@@ -15,6 +15,7 @@
       color: var(--text);
       line-height: 1.55;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     /* ── Theme tokens ── */
@@ -180,12 +181,31 @@
     }
     @media (max-width: 900px) {
       main { grid-template-columns: 1fr; }
-      #sidebar { order: 2; }
+      #sidebar { display: none; }
+      .ad-inline { display: block; }
+      .field input, .field select { min-height: 44px; }
     }
 
     /* ── Sidebar ── */
     #sidebar { display: flex; flex-direction: column; gap: 1rem; }
     #ad-sidebar { position: sticky; top: 80px; }
+
+    /* ── Inline ads (mobile only) ── */
+    .ad-inline {
+      display: none;
+      text-align: center;
+      padding: .5rem 0 .75rem;
+    }
+    .ad-inline-link { display: inline-block; }
+    .ad-inline-img {
+      width: 60%;
+      max-width: 220px;
+      height: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      transition: opacity .2s;
+    }
+    .ad-inline-img:hover { opacity: .85; }
 
     /* ── Cards ── */
     .card {
@@ -544,6 +564,13 @@
           </div>
         </section>
 
+        <!-- Inline ad 1 — mobile only -->
+        <div class="ad-inline">
+          <a class="ad-inline-link" href="https://www.instagram.com/anafariaatelie" target="_blank" rel="noopener" aria-label="Ana Faria Ateliê on Instagram">
+            <img class="ad-inline-img" src="ad-anafariaatelie.jpg" alt="Ana Faria Ateliê">
+          </a>
+        </div>
+
         <!-- Section 2: Machine & Operations -->
         <section class="card" id="s-machine">
           <h2 data-i18n="section_machine"></h2>
@@ -581,6 +608,13 @@
           </div>
         </section>
 
+        <!-- Inline ad 2 — mobile only -->
+        <div class="ad-inline">
+          <a class="ad-inline-link" href="https://www.instagram.com/nothavelsemijoias" target="_blank" rel="noopener" aria-label="Nothavel Semijoias on Instagram">
+            <img class="ad-inline-img" src="ad-nothavel.jpg" alt="Nothavel Semijoias">
+          </a>
+        </div>
+
         <!-- Section 3: Post-Processing -->
         <section class="card" id="s-postproc">
           <h2 data-i18n="section_postproc"></h2>
@@ -589,6 +623,13 @@
             <input type="number" id="postproc-minutes" min="0" step="1" value="0" placeholder="0">
           </div>
         </section>
+
+        <!-- Inline ad 3 — mobile only -->
+        <div class="ad-inline">
+          <a class="ad-inline-link" href="https://www.instagram.com/personalizadospandajuju/" target="_blank" rel="noopener" aria-label="Personalizados Panda Juju on Instagram">
+            <img class="ad-inline-img" src="ad-pandajuju.jpg" alt="Personalizados Panda Juju">
+          </a>
+        </div>
 
         <!-- Section 4: Accessories & Packing -->
         <section class="card" id="s-packing">

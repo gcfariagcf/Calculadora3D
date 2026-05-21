@@ -30,38 +30,82 @@ e log| Logo | Fetch from Duo3DLab's Instagram profile — [https://www.instagram
 
 ## 3. Layout
 
+### 3.1 Desktop (viewport ≥ 900 px)
+
 ```
 ┌──────────────────────────────────────────────────────┐
-│  AD BANNER — full width, 90px height                 │
+│  AD BANNER — full width, max 90px height             │
 ├─────────────────────────────────┬────────────────────┤
 │  HEADER                         │                    │
-│  [Calculadora 3D]  [EN | PT]    │  AD SIDEBAR        │
+│  [Logo] Calculadora 3D [EN|PT]  │  AD SIDEBAR        │
 │  Powered by Duo3DLab            │  300px wide        │
 ├─────────────────────────────────┤  sticky            │
-│  FORM                           │                    │
-│  ▸ Section 1: Print Parameters  │                    │
-│  ▸ Section 2: Machine & Ops     │                    │
+│  FORM                           │  • Ana Faria Ateliê│
+│  ▸ Section 1: Print Parameters  │  • Nothavel        │
+│  ▸ Section 2: Machine & Ops     │  • Panda Juju      │
 │  ▸ Section 3: Post-Processing   │                    │
 │  ▸ Section 4: Accessories &     │                    │
 │               Packing           │                    │
 │  ▸ Section 5: Pricing           │                    │
-│                                 │                    │
 │  [  CALCULATE  ]                │                    │
-│                                 │                    │
 │  RESULTS (shown after calc)     │                    │
-│  ▸ Cost Breakdown               │                    │
-│  ▸ Suggested Price & Links      │                    │
-│  ▸ Production Capacity          │                    │
-│  ▸ Revenue Projection           │                    │
-│  ▸ Break-Even Analysis          │                    │
-│                                 │                    │
 │  [  EXPORT PDF  ]               │                    │
 ├─────────────────────────────────┴────────────────────┤
 │  FOOTER: Powered by Duo3DLab                         │
 └──────────────────────────────────────────────────────┘
 ```
 
-**Responsive behaviour:** On screens < 900px the sidebar collapses below the main content. The top banner becomes a responsive unit (max 100% width).
+### 3.2 Mobile (viewport < 900 px — Android & iOS)
+
+```
+┌─────────────────────────┐
+│  AD BANNER (full width) │
+├─────────────────────────┤
+│  HEADER                 │
+│  [Logo] Calculadora 3D  │
+│  [EN | PT]              │
+├─────────────────────────┤
+│  Section 1: Print Params│
+├─────────────────────────┤
+│  ┌─────────────────┐    │
+│  │ Ana Faria Ateliê│    │  ← inline ad 1
+│  └─────────────────┘    │
+├─────────────────────────┤
+│  Section 2: Machine&Ops │
+├─────────────────────────┤
+│  ┌─────────────────┐    │
+│  │ Nothavel        │    │  ← inline ad 2
+│  └─────────────────┘    │
+├─────────────────────────┤
+│  Section 3: Post-Proc   │
+├─────────────────────────┤
+│  ┌─────────────────┐    │
+│  │ Panda Juju      │    │  ← inline ad 3
+│  └─────────────────┘    │
+├─────────────────────────┤
+│  Section 4: Packing     │
+│  Section 5: Pricing     │
+│  [  CALCULATE  ]        │
+│  RESULTS                │
+│  [  EXPORT PDF  ]       │
+├─────────────────────────┤
+│  FOOTER                 │
+└─────────────────────────┘
+```
+
+**Sidebar hidden on mobile.** The three advertiser logos are instead injected as centred inline blocks between form sections, each linking to the respective Instagram profile.
+
+### 3.3 Responsive rules
+
+| Breakpoint | Behaviour |
+|-----------|-----------|
+| ≥ 900 px (desktop) | Two-column grid (`1fr 300px`); sidebar visible; inline ads hidden |
+| < 900 px (mobile/tablet) | Single column; sidebar hidden; inline ads visible between sections |
+
+- The page is fully usable on **Android** and **iOS** mobile browsers (Chrome, Safari, Firefox).
+- Touch targets (buttons, inputs, links) are sized ≥ 44 px tall.
+- No horizontal scrolling on any viewport width ≥ 320 px.
+- Font sizes remain legible without zooming on a standard phone screen.
 
 ---
 
