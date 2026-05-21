@@ -14,7 +14,7 @@ Tasks:
 - [ ] `<head>`: charset, viewport, title ("Calculadora 3D"), CDN link for html2pdf.js
 - [ ] `<body>` top-level structure:
   - `#ad-top` — top banner placeholder div
-  - `<header>` — title, language toggle button, brand line
+  - `<header>` — circular logo image (linked to `https://instagram.com/duo3dlab/`, opens in new tab, with D3 gradient fallback), title, language toggle button, brand line
   - `<main>` — two-column wrapper: `#content` + `#sidebar`
   - `#ad-sidebar` — sidebar ad placeholder div inside `#sidebar`
   - `<footer>` — "Powered by Duo3DLab"

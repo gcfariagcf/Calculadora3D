@@ -19,7 +19,7 @@ A browser-based 3D printing cost calculator. Given print parameters, machine set
 |----------|-------|
 | Page title | Calculadora 3D |
 | Brand line | Powered by Duo3DLab |
-| Logo | Fetch from Duo3DLab's Instagram profile — [https://www.instagram.com/duo3dlab/](https://www.instagram.com/duo3dlab/). Display the profile image in the header next to the page title. If the image cannot be loaded, fall back to text only. |
+e log| Logo | Fetch from Duo3DLab's Instagram profile — [https://www.instagram.com/duo3dlab/](https://www.instagram.com/duo3dlab/). Display the profile image in the header next to the page title. If the image cannot be loaded, fall back to text only. |
 | Languages | English (EN) / Portuguese (PT) |
 | Default language | Auto-detected from `navigator.language` (pt → PT, else EN) |
 | Currency | $ (no label suffix) |
