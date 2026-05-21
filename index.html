@@ -59,19 +59,16 @@
       width: 100%;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 1rem;
+      overflow: hidden;
     }
-    .ad-top-link { display: inline-flex; }
-    .ad-top-img {
-      max-height: 90px;
-      max-width: min(728px, calc(100vw - 2rem));
-      width: auto;
-      object-fit: contain;
+    .ad-top-link {
       display: block;
-      border-radius: 6px;
+      width: 100%;
+    }
+    .ad-top-img {
+      display: block;
+      width: 100%;
+      height: auto;
       transition: opacity .2s;
     }
     .ad-top-img:hover { opacity: .85; }
@@ -79,11 +76,16 @@
     /* ── Sidebar ads ── */
     .ad-block { margin-bottom: .85rem; }
     .ad-block:last-child { margin-bottom: 0; }
-    .ad-block-link { display: block; border-radius: var(--radius); overflow: hidden; }
+    .ad-block-link {
+      display: block;
+      width: 100%;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
     .ad-side-img {
+      display: block;
       width: 100%;
       height: auto;
-      display: block;
       border-radius: var(--radius);
       border: 1px solid var(--border);
       transition: opacity .2s, transform .2s;

@@ -61,8 +61,11 @@ Tasks:
 - [ ] Search buttons (Google/Etsy/MakerWorld): inline pill buttons with brand-ish colors
 - [ ] Export PDF button: outlined style, aligned right
 - [ ] Language toggle: two inline text buttons, active state underlined/bold
-- [ ] Ad placeholders (development): dashed border `--border`, `background: --surface`, centered label "Advertisement"
-- [ ] Responsive: on < 900px sidebar moves below content; top banner max-width 100%
+- [ ] Ad images — fluid sizing, no fixed pixel constraints:
+  - Top banner (`.ad-top-link`, `.ad-top-img`): `display: block; width: 100%; height: auto` — image fills the full viewport width, height follows aspect ratio
+  - Sidebar ads (`.ad-side-img`): `width: 100%; height: auto` — each image fills the 300 px column, height follows aspect ratio
+  - Hover: subtle opacity fade on top; opacity + slight scale on sidebar
+- [ ] Responsive: on < 900px sidebar collapses below content; ad images continue to fill 100 % column width at any size
 
 **Deliverable:** Styled, responsive page that looks correct in both dark and light mode with placeholder content.
 

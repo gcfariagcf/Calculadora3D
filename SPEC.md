@@ -270,12 +270,18 @@ Displayed as a table with two columns: item name and amount ($X.XX).
 
 ## 7. Ad Spaces
 
-| Slot | ID | Position | Standard size |
-|------|----|----------|---------------|
-| Top banner | `ad-top` | Full-width, above header | 728 × 90 (leaderboard) |
-| Sidebar | `ad-sidebar` | Right column, sticky | 300 × 250 or 300 × 600 |
+| Slot | ID | Position | Sizing behaviour |
+|------|----|----------|-----------------|
+| Top banner | `ad-top` | Full-width, above header | Image fills 100 % of the viewport width; height follows the image's natural aspect ratio |
+| Sidebar | `ad-sidebar` | Right column, sticky | Each ad image fills 100 % of the 300 px column; height follows the image's natural aspect ratio |
 
-Both slots are empty `<div>` elements with comments marking where ad network scripts should be inserted. They are styled with a visible placeholder (dashed border + label) when empty, so the layout is visible during development.
+**Responsive sizing rules:**
+- No fixed pixel dimensions are imposed on either slot.
+- Images use `width: 100%; height: auto` so they scale fluidly with the available space.
+- On narrow viewports (< 900 px) the sidebar collapses below the main content; sidebar images continue to fill the full column width at that size.
+- Hover effects (subtle opacity fade) are preserved on both slots.
+
+Each slot contains real linked logo images (not placeholder divs). The top banner links to Duo3DLab's Instagram; the sidebar contains three stacked advertiser logos, each linking to the respective Instagram profile.
 
 ---
 
