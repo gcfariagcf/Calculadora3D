@@ -59,16 +59,19 @@
       width: 100%;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 1rem;
       overflow: hidden;
     }
-    .ad-top-link {
-      display: block;
-      width: 100%;
-    }
+    .ad-top-link { display: inline-flex; }
     .ad-top-img {
       display: block;
-      width: 100%;
-      height: auto;
+      width: auto;
+      max-width: 100%;
+      max-height: 90px;
+      object-fit: contain;
       transition: opacity .2s;
     }
     .ad-top-img:hover { opacity: .85; }

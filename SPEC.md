@@ -272,7 +272,7 @@ Displayed as a table with two columns: item name and amount ($X.XX).
 
 | Slot | ID | Position | Sizing behaviour |
 |------|----|----------|-----------------|
-| Top banner | `ad-top` | Full-width, above header | Image fills 100 % of the viewport width; height follows the image's natural aspect ratio |
+| Top banner | `ad-top` | Full-width, above header | Image is constrained to **max-height 90 px**; width scales automatically (`width: auto; max-width: 100%`); vertically centred in the bar |
 | Sidebar | `ad-sidebar` | Right column, sticky | Each ad image fills 100 % of the 300 px column; height follows the image's natural aspect ratio |
 
 **Responsive sizing rules:**
