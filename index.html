@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora 3D — Duo3DLab</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+
+    /* ── Theme tokens ── */
+    :root {
+      --bg:           #f0f2f5;
+      --surface:      #ffffff;
+      --primary:      #1a73e8;
+      --primary-dk:   #1557b0;
+      --primary-lt:   #e8f0fe;
+      --text:         #1c1c1e;
+      --text-muted:   #6b7280;
+      --border:       #d1d5db;
+      --error:        #dc2626;
+      --error-bg:     #fef2f2;
+      --success:      #16a34a;
+      --warning:      #d97706;
+      --warning-bg:   #fffbeb;
+      --shadow:       0 1px 3px rgba(0,0,0,.1), 0 4px 12px rgba(0,0,0,.06);
+      --radius:       10px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:           #0f1117;
+        --surface:      #1c1f26;
+        --primary:      #5a9cf8;
+        --primary-dk:   #3d7de8;
+        --primary-lt:   #1a2540;
+        --text:         #e5e7eb;
+        --text-muted:   #9ca3af;
+        --border:       #2d3140;
+        --error:        #f87171;
+        --error-bg:     #1f1010;
+        --success:      #4ade80;
+        --warning:      #fbbf24;
+        --warning-bg:   #1f1a0a;
+        --shadow:       0 1px 3px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.3);
+      }
+    }
+
+    /* ── Ad banner ── */
+    #ad-top {
+      width: 100%;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 0;
+      min-height: 106px;
+    }
+    .ad-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: .75rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+    }
+    #ad-top .ad-placeholder { width: 728px; max-width: calc(100vw - 2rem); height: 90px; }
+    #ad-sidebar .ad-placeholder { width: 100%; height: 250px; }
+
+    /* ── Header ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .logo-wrap { flex-shrink: 0; }
+    .logo-img {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+      display: block;
+    }
+    .logo-fallback {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+      color: #fff;
+      font-weight: 800;
+      font-size: .82rem;
+      letter-spacing: -.02em;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .header-brand h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -.02em;
+    }
+    .header-brand small {
+      display: block;
+      font-size: .7rem;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .lang-toggle { display: flex; align-items: center; gap: .35rem; }
+    .lang-sep { color: var(--border); }
+    .lang-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: .25rem .5rem;
+      border-radius: 6px;
+      transition: color .15s, background .15s;
+    }
+    .lang-btn:hover { color: var(--primary); background: var(--primary-lt); }
+    .lang-btn.active {
+      color: var(--primary);
+      border-bottom: 2px solid var(--primary);
+    }
+
+    /* ── Main layout ── */
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 1.75rem 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+      #sidebar { order: 2; }
+    }
+
+    /* ── Sidebar ── */
+    #sidebar { display: flex; flex-direction: column; gap: 1rem; }
+    #ad-sidebar { position: sticky; top: 80px; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.4rem 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+    }
+    .card h2 {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--primary);
+      border-left: 3px solid var(--primary);
+      padding-left: .65rem;
+      margin-bottom: 1.2rem;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: .9rem; }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: .3rem;
+    }
+    .field input[type="number"], .field input[type="url"] {
+      width: 100%;
+      padding: .5rem .75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: .9rem;
+      transition: border-color .15s, box-shadow .15s;
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+    .field input::-webkit-outer-spin-button,
+    .field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .field input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+    }
+    .field input.err-input { border-color: var(--error); }
+    .field-error {
+      display: none;
+      color: var(--error);
+      font-size: .75rem;
+      margin-top: .25rem;
+    }
+    .field-error.show { display: block; }
+    .field-note {
+      font-size: .75rem;
+      color: var(--text-muted);
+      margin-top: .3rem;
+      line-height: 1.4;
+    }
+    .field-row   { display: grid; grid-template-columns: 1fr 1fr;     gap: .85rem; }
+    .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .85rem; }
+    @media (max-width: 480px) {
+      .field-row, .field-row-3 { grid-template-columns: 1fr; }
+    }
+
+    /* ── Box reference table ── */
+    details { margin-top: .6rem; }
+    details summary {
+      cursor: pointer;
+      font-size: .75rem;
+      color: var(--primary);
+      user-select: none;
+    }
+    .box-ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: .5rem;
+      font-size: .78rem;
+    }
+    .box-ref-table th {
+      text-align: left;
+      padding: .3rem .5rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .box-ref-table td {
+      padding: .3rem .5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .box-ref-table tr:last-child td { border-bottom: none; }
+
+    /* ── Calculate button ── */
+    #btn-calculate {
+      width: 100%;
+      padding: .85rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: .25rem;
+      letter-spacing: .02em;
+      transition: background .15s, transform .1s;
+    }
+    #btn-calculate:hover  { background: var(--primary-dk); }
+    #btn-calculate:active { transform: scale(.99); }
+
+    /* ── Alerts ── */
+    .alert {
+      padding: .65rem .9rem;
+      border-radius: 7px;
+      font-size: .82rem;
+      margin-bottom: .9rem;
+      line-height: 1.45;
+    }
+    .alert-warning { background: var(--warning-bg); border: 1px solid var(--warning); color: var(--warning); }
+    .alert-error   { background: var(--error-bg);   border: 1px solid var(--error);   color: var(--error);   }
+
+    /* ── Box selected badge ── */
+    .box-badge {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 20px;
+      padding: .2rem .75rem;
+      font-size: .78rem;
+      font-weight: 600;
+      margin-top: .5rem;
+    }
+
+    /* ── Result table ── */
+    .result-table { width: 100%; border-collapse: collapse; }
+    .result-table td {
+      padding: .5rem .6rem;
+      font-size: .87rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-table td:last-child { text-align: right; font-weight: 600; }
+    .result-table tr:nth-child(even) td { background: color-mix(in srgb, var(--primary) 4%, transparent); }
+    .result-table tr.total-row td {
+      font-weight: 700;
+      font-size: .95rem;
+      color: var(--primary);
+      border-top: 2px solid var(--border);
+      border-bottom: none;
+      padding-top: .7rem;
+    }
+    .packing-sub { font-size: .72rem; color: var(--text-muted); margin-left: .3rem; }
+
+    /* ── Suggested price ── */
+    .suggested-big {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: .35rem;
+    }
+    .suggested-label { font-size: .78rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .search-label-text { font-size: .8rem; color: var(--text-muted); margin-bottom: .6rem; }
+
+    /* ── Search buttons ── */
+    .search-buttons { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .9rem; }
+    .search-btn {
+      display: inline-block;
+      padding: .38rem .9rem;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      color: #fff;
+      border: none;
+      transition: opacity .15s;
+    }
+    .search-btn:hover { opacity: .85; }
+    .search-btn.google      { background: #4285f4; }
+    .search-btn.etsy        { background: #f56400; }
+    .search-btn.makerworld  { background: #00bcd4; }
+
+    /* ── Reference URL ── */
+    .ref-url-wrap { display: flex; flex-direction: column; gap: .4rem; }
+    .ref-url-input {
+      width: 100%;
+      padding: .45rem .75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: .82rem;
+    }
+    .ref-url-input:focus { outline: none; border-color: var(--primary); }
+    .ref-url-link {
+      font-size: .78rem;
+      color: var(--primary);
+      word-break: break-all;
+      text-decoration: underline;
+    }
+
+    /* ── Capacity grid ── */
+    .capacity-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      text-align: center;
+    }
+    .capacity-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem .75rem;
+    }
+    .capacity-label { font-size: .75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .35rem; }
+    .big-number { font-size: 2.2rem; font-weight: 800; color: var(--primary); line-height: 1; }
+
+    /* ── Result rows ── */
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: .5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .87rem;
+      gap: 1rem;
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-value { font-weight: 700; white-space: nowrap; }
+    .positive { color: var(--success); }
+    .negative { color: var(--error); }
+
+    /* ── Export button ── */
+    #btn-export {
+      display: block;
+      margin: .5rem 0 0 auto;
+      padding: .55rem 1.4rem;
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      border-radius: var(--radius);
+      font-size: .88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    #btn-export:hover { background: var(--primary); color: #fff; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 1.75rem 1rem;
+      color: var(--text-muted);
+      font-size: .8rem;
+      border-top: 1px solid var(--border);
+      margin-top: .5rem;
+    }
+
+    /* ── Print/PDF ── */
+    @media print {
+      #ad-top, #ad-sidebar, header, footer, #calc-form,
+      .pdf-hide, #btn-export { display: none !important; }
+      main { display: block; padding: 0; }
+      .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ TOP AD BANNER — insert ad network code inside this div ═══ -->
+  <div id="ad-top">
+    <div class="ad-placeholder">Advertisement 728×90</div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-brand">
+      <!-- Logo: download the profile image from https://www.instagram.com/duo3dlab/
+           and save it as logo.png next to this file. The gradient circle is the fallback. -->
+      <div class="logo-wrap">
+        <img id="logo-img" class="logo-img" src="logo.png" alt="Duo3DLab"
+             onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+        <div id="logo-fallback" class="logo-fallback">D3</div>
+      </div>
+      <div>
+        <h1>Calculadora 3D</h1>
+        <small data-i18n="powered_by"></small>
+      </div>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn" id="btn-en" aria-label="English">EN</button>
+      <span class="lang-sep">|</span>
+      <button class="lang-btn" id="btn-pt" aria-label="Português">PT</button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <div id="content">
+
+      <!-- ── FORM ── -->
+      <form id="calc-form" novalidate>
+
+        <!-- Section 1: Print Parameters -->
+        <section class="card" id="s-print">
+          <h2 data-i18n="section_print"></h2>
+          <div class="field">
+            <label for="weight" data-i18n="lbl_weight"></label>
+            <input type="number" id="weight" min="0.1" step="0.1" placeholder="e.g. 45">
+            <span class="field-error" id="err-weight" data-i18n="err_positive"></span>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="print-h" data-i18n="lbl_print_h"></label>
+              <input type="number" id="print-h" min="0" step="1" value="0" placeholder="0">
+              <span class="field-error" id="err-print-time" data-i18n="err_print_time"></span>
+            </div>
+            <div class="field">
+              <label for="print-min" data-i18n="lbl_print_min"></label>
+              <input type="number" id="print-min" min="0" max="59" step="1" value="0" placeholder="0">
+              <span class="field-error" id="err-print-min" data-i18n="err_minutes"></span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="filament-price" data-i18n="lbl_filament"></label>
+            <input type="number" id="filament-price" min="0.01" step="0.01" placeholder="e.g. 25.00">
+            <span class="field-error" id="err-filament" data-i18n="err_positive"></span>
+          </div>
+        </section>
+
+        <!-- Section 2: Machine & Operations -->
+        <section class="card" id="s-machine">
+          <h2 data-i18n="section_machine"></h2>
+          <div class="field-row">
+            <div class="field">
+              <label for="working-h" data-i18n="lbl_working_h"></label>
+              <input type="number" id="working-h" min="0.5" max="24" step="0.5" placeholder="e.g. 8">
+              <span class="field-error" id="err-working-h" data-i18n="err_positive"></span>
+            </div>
+            <div class="field">
+              <label for="working-days" data-i18n="lbl_working_days"></label>
+              <input type="number" id="working-days" min="1" max="31" step="1" placeholder="e.g. 22">
+              <span class="field-error" id="err-working-days" data-i18n="err_positive"></span>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="labor-rate" data-i18n="lbl_labor"></label>
+              <input type="number" id="labor-rate" min="0" step="0.01" value="0" placeholder="0.00">
+            </div>
+            <div class="field">
+              <label for="electricity-rate" data-i18n="lbl_electricity"></label>
+              <input type="number" id="electricity-rate" min="0" step="0.01" value="0" placeholder="0.00">
+            </div>
+          </div>
+          <div class="field">
+            <label for="printer-price" data-i18n="lbl_printer_price"></label>
+            <input type="number" id="printer-price" min="0" step="1" value="0" placeholder="0">
+            <div class="field-note" id="depreciation-note" style="display:none;"></div>
+          </div>
+          <div class="field">
+            <label for="failure-rate" data-i18n="lbl_failure"></label>
+            <input type="number" id="failure-rate" min="0" max="99" step="1" value="10">
+            <span class="field-error" id="err-failure" data-i18n="err_failure_range"></span>
+          </div>
+        </section>
+
+        <!-- Section 3: Post-Processing -->
+        <section class="card" id="s-postproc">
+          <h2 data-i18n="section_postproc"></h2>
+          <div class="field">
+            <label for="postproc-hours" data-i18n="lbl_postproc"></label>
+            <input type="number" id="postproc-hours" min="0" step="0.25" value="0" placeholder="0">
+          </div>
+        </section>
+
+        <!-- Section 4: Accessories & Packing -->
+        <section class="card" id="s-packing">
+          <h2 data-i18n="section_packing"></h2>
+          <div class="field">
+            <label for="accessories-cost" data-i18n="lbl_accessories"></label>
+            <input type="number" id="accessories-cost" min="0" step="0.01" value="0" placeholder="0.00">
+          </div>
+          <div class="field-row-3">
+            <div class="field">
+              <label for="piece-h" data-i18n="lbl_piece_h"></label>
+              <input type="number" id="piece-h" min="0" step="0.1" value="0" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="piece-w" data-i18n="lbl_piece_w"></label>
+              <input type="number" id="piece-w" min="0" step="0.1" value="0" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="piece-l" data-i18n="lbl_piece_l"></label>
+              <input type="number" id="piece-l" min="0" step="0.1" value="0" placeholder="0">
+            </div>
+          </div>
+          <div id="box-info" style="display:none;"></div>
+          <div id="packing-manual-field" class="field" style="display:none; margin-top:.75rem;">
+            <label for="packing-manual" data-i18n="lbl_packing_manual"></label>
+            <input type="number" id="packing-manual" min="0" step="0.01" value="0">
+          </div>
+          <div class="field-note" style="margin-top:.75rem;">
+            <details>
+              <summary data-i18n="lbl_box_reference"></summary>
+              <table class="box-ref-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="th_box_size"></th>
+                    <th data-i18n="th_box_dims"></th>
+                    <th data-i18n="th_box_cost"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>XS</td><td>10 × 10 × 10 cm</td><td>$1</td></tr>
+                  <tr><td>S</td><td>20 × 15 × 10 cm</td><td>$2</td></tr>
+                  <tr><td>M</td><td>30 × 20 × 15 cm</td><td>$3</td></tr>
+                  <tr><td>L</td><td>40 × 30 × 20 cm</td><td>$4</td></tr>
+                  <tr><td>XL</td><td>50 × 40 × 30 cm</td><td>$5</td></tr>
+                </tbody>
+              </table>
+            </details>
+          </div>
+        </section>
+
+        <!-- Section 5: Pricing -->
+        <section class="card" id="s-pricing">
+          <h2 data-i18n="section_pricing"></h2>
+          <div class="field-row">
+            <div class="field">
+              <label for="margin" data-i18n="lbl_margin"></label>
+              <input type="number" id="margin" min="0" max="99" step="1" value="0" placeholder="e.g. 30">
+              <span class="field-error" id="err-margin" data-i18n="err_margin_100"></span>
+            </div>
+            <div class="field">
+              <label for="selling-price" data-i18n="lbl_selling"></label>
+              <input type="number" id="selling-price" min="0.01" step="0.01" placeholder="e.g. 15.00">
+              <span class="field-error" id="err-selling" data-i18n="err_positive"></span>
+            </div>
+          </div>
+        </section>
+
+        <button type="button" id="btn-calculate" data-i18n="btn_calculate"></button>
+      </form>
+
+      <!-- ── RESULTS ── -->
+      <div id="results" style="display:none; margin-top:1.5rem;">
+
+        <!-- PDF-only header (hidden on screen) -->
+        <div id="pdf-header" style="display:none; padding:0 0 1rem 0; border-bottom:2px solid #1a73e8; margin-bottom:1rem;">
+          <div style="font-size:1.3rem; font-weight:800; color:#1a73e8;">Calculadora 3D</div>
+          <div style="font-size:.8rem; color:#757575;" id="pdf-brand">Duo3DLab</div>
+          <div style="font-size:.78rem; color:#9ca3af; margin-top:.2rem;" id="pdf-date"></div>
+        </div>
+
+        <!-- Cost Breakdown -->
+        <section class="card" id="res-breakdown">
+          <h2 data-i18n="res_breakdown_title"></h2>
+          <table class="result-table">
+            <tbody>
+              <tr><td data-i18n="res_filament"></td><td id="r-filament"></td></tr>
+              <tr><td data-i18n="res_electricity"></td><td id="r-electricity"></td></tr>
+              <tr><td data-i18n="res_depreciation"></td><td id="r-depreciation"></td></tr>
+              <tr><td data-i18n="res_printing_labor"></td><td id="r-printing-labor"></td></tr>
+              <tr><td data-i18n="res_postproc"></td><td id="r-postproc"></td></tr>
+              <tr><td data-i18n="res_accessories"></td><td id="r-accessories"></td></tr>
+              <tr>
+                <td>
+                  <span data-i18n="res_packing"></span>
+                  <span class="packing-sub" id="r-packing-label"></span>
+                </td>
+                <td id="r-packing"></td>
+              </tr>
+              <tr class="total-row">
+                <td data-i18n="res_total"></td>
+                <td id="r-total"></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Suggested Price -->
+        <section class="card" id="res-suggested">
+          <h2 data-i18n="res_suggested_title"></h2>
+          <div class="suggested-label" data-i18n="res_suggested_label"></div>
+          <div class="suggested-big" id="r-suggested-price"></div>
+          <div class="search-label-text" data-i18n="res_search_label"></div>
+          <div class="search-buttons pdf-hide">
+            <a id="search-google" class="search-btn google" target="_blank" rel="noopener" data-i18n="search_google"></a>
+            <a id="search-etsy" class="search-btn etsy" target="_blank" rel="noopener" data-i18n="search_etsy"></a>
+            <a id="search-makerworld" class="search-btn makerworld" target="_blank" rel="noopener" data-i18n="search_makerworld"></a>
+          </div>
+          <div class="ref-url-wrap">
+            <input type="url" id="ref-url-input" class="ref-url-input pdf-hide" data-i18n-placeholder="res_ref_url_placeholder">
+            <a id="ref-url-link" class="ref-url-link" target="_blank" rel="noopener" style="display:none;"></a>
+          </div>
+        </section>
+
+        <!-- Production Capacity -->
+        <section class="card" id="res-capacity">
+          <h2 data-i18n="res_capacity_title"></h2>
+          <div id="capacity-warning" class="alert alert-warning" style="display:none;"></div>
+          <div class="capacity-grid" id="capacity-grid" style="display:none;">
+            <div class="capacity-box">
+              <div class="capacity-label" data-i18n="res_pieces_day"></div>
+              <div class="big-number" id="r-pieces-day">—</div>
+            </div>
+            <div class="capacity-box">
+              <div class="capacity-label" data-i18n="res_pieces_month"></div>
+              <div class="big-number" id="r-pieces-month">—</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Revenue Projection -->
+        <section class="card" id="res-revenue">
+          <h2 data-i18n="res_revenue_title"></h2>
+          <div id="revenue-warning" class="alert alert-warning" style="display:none;"></div>
+          <div id="revenue-content" style="display:none;">
+            <div class="result-row"><span data-i18n="res_selling_price"></span><span class="result-value" id="r-selling"></span></div>
+            <div class="result-row"><span data-i18n="res_daily_revenue"></span><span class="result-value" id="r-daily-revenue"></span></div>
+            <div class="result-row"><span data-i18n="res_monthly_revenue"></span><span class="result-value" id="r-monthly-revenue"></span></div>
+            <div class="result-row"><span data-i18n="res_monthly_profit"></span><span class="result-value" id="r-monthly-profit"></span></div>
+            <div class="result-row"><span data-i18n="res_actual_margin"></span><span class="result-value" id="r-actual-margin"></span></div>
+          </div>
+        </section>
+
+        <!-- Break-Even Analysis -->
+        <section class="card" id="res-breakeven">
+          <h2 data-i18n="res_breakeven_title"></h2>
+          <div id="breakeven-error" class="alert alert-error" style="display:none;"></div>
+          <div id="breakeven-content" style="display:none;">
+            <div class="result-row"><span data-i18n="res_fixed_costs"></span><span class="result-value" id="r-fixed-costs"></span></div>
+            <div class="result-row"><span data-i18n="res_variable_cost"></span><span class="result-value" id="r-variable-cost"></span></div>
+            <div class="result-row"><span data-i18n="res_contribution"></span><span class="result-value" id="r-contribution"></span></div>
+            <div class="result-row"><span data-i18n="res_breakeven_units"></span><span class="result-value" id="r-breakeven-units"></span></div>
+            <div class="result-row"><span data-i18n="res_breakeven_days"></span><span class="result-value" id="r-breakeven-days"></span></div>
+          </div>
+        </section>
+
+        <button type="button" id="btn-export" class="pdf-hide" data-i18n="btn_export" style="display:none;"></button>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <!-- ═══ SIDEBAR AD — insert ad network code inside this div ═══ -->
+      <div id="ad-sidebar">
+        <div class="ad-placeholder">Advertisement 300×250</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span data-i18n="powered_by"></span>
+  </footer>
+
+  <script>
+  // ─── i18n strings ───────────────────────────────────────────────────────────
+  const STRINGS = {
+    en: {
+      powered_by:         'Powered by Duo3DLab',
+      section_print:      'Print Parameters',
+      section_machine:    'Machine & Operations',
+      section_postproc:   'Post-Processing',
+      section_packing:    'Accessories & Packing',
+      section_pricing:    'Pricing',
+      lbl_weight:         'Piece weight (g)',
+      lbl_print_h:        'Print time — hours',
+      lbl_print_min:      'Print time — minutes',
+      lbl_filament:       'Filament price ($/kg)',
+      lbl_working_h:      'Working hours per day',
+      lbl_working_days:   'Working days per month',
+      lbl_labor:          'Labor cost per hour ($)',
+      lbl_electricity:    'Electricity cost per hour ($)',
+      lbl_printer_price:  'Printer purchase price ($)',
+      lbl_failure:        'Failure rate (%)',
+      lbl_postproc:       'Post-processing time per unit (h)',
+      lbl_accessories:    'Accessories cost per unit ($)',
+      lbl_piece_h:        'Height (cm)',
+      lbl_piece_w:        'Width (cm)',
+      lbl_piece_l:        'Length (cm)',
+      lbl_margin:         'Profit margin (%)',
+      lbl_selling:        'Your selling price ($)',
+      lbl_packing_manual: 'Manual packing cost ($)',
+      lbl_box_reference:  'Predefined box sizes (reference)',
+      th_box_size:        'Size',
+      th_box_dims:        'Dimensions',
+      th_box_cost:        'Cost',
+      btn_calculate:      'Calculate',
+      btn_export:         'Export PDF',
+      err_positive:       'Must be greater than 0',
+      err_print_time:     'Print time must be greater than 0',
+      err_minutes:        'Minutes must be between 0 and 59',
+      err_margin_100:     'Margin must be less than 100%',
+      err_failure_range:  'Must be between 0 and 99',
+      warn_no_capacity:   'Print time exceeds working hours. No pieces can be produced per day.',
+      warn_box_overflow:  'Piece exceeds the largest predefined box. Enter packing cost manually.',
+      warn_no_breakeven:  'Selling price does not cover variable costs. Increase your price.',
+      warn_no_revenue:    'No pieces can be produced. Revenue projection unavailable.',
+      res_breakdown_title:'Cost Breakdown',
+      res_filament:       'Filament (failure-adjusted)',
+      res_electricity:    'Electricity (failure-adjusted)',
+      res_depreciation:   'Machine depreciation (failure-adjusted)',
+      res_printing_labor: 'Printing labor (failure-adjusted)',
+      res_postproc:       'Post-processing',
+      res_accessories:    'Accessories',
+      res_packing:        'Packing',
+      res_total:          'Total cost per piece',
+      res_suggested_title:'Suggested Price',
+      res_suggested_label:'Suggested selling price',
+      res_search_label:   'Find reference prices online:',
+      res_ref_url_placeholder: 'Paste a reference price URL here...',
+      search_google:      'Search Google',
+      search_etsy:        'Search Etsy',
+      search_makerworld:  'Search MakerWorld',
+      res_capacity_title: 'Production Capacity',
+      res_pieces_day:     'Pieces per day',
+      res_pieces_month:   'Pieces per month',
+      res_revenue_title:  'Revenue Projection',
+      res_selling_price:  'Your selling price',
+      res_daily_revenue:  'Daily revenue',
+      res_monthly_revenue:'Monthly revenue',
+      res_monthly_profit: 'Monthly profit',
+      res_actual_margin:  'Profit margin',
+      res_breakeven_title:'Break-Even Analysis',
+      res_fixed_costs:    'Fixed monthly costs',
+      res_variable_cost:  'Variable cost per piece',
+      res_contribution:   'Contribution margin per piece',
+      res_breakeven_units:'Break-even units / month',
+      res_breakeven_days: 'Break-even days',
+      depr_note:          'Depreciation per hour:',
+      box_selected:       'Selected box:',
+      na:                 'N/A',
+    },
+    pt: {
+      powered_by:         'Desenvolvido por Duo3DLab',
+      section_print:      'Parâmetros de Impressão',
+      section_machine:    'Máquina e Operações',
+      section_postproc:   'Pós-Processamento',
+      section_packing:    'Acessórios e Embalagem',
+      section_pricing:    'Precificação',
+      lbl_weight:         'Peso da peça (g)',
+      lbl_print_h:        'Tempo de impressão — horas',
+      lbl_print_min:      'Tempo de impressão — minutos',
+      lbl_filament:       'Preço do filamento ($/kg)',
+      lbl_working_h:      'Horas de trabalho por dia',
+      lbl_working_days:   'Dias de trabalho por mês',
+      lbl_labor:          'Custo de mão de obra por hora ($)',
+      lbl_electricity:    'Custo de eletricidade por hora ($)',
+      lbl_printer_price:  'Preço de compra da impressora ($)',
+      lbl_failure:        'Taxa de falha (%)',
+      lbl_postproc:       'Tempo de pós-processamento por unidade (h)',
+      lbl_accessories:    'Custo de acessórios por unidade ($)',
+      lbl_piece_h:        'Altura (cm)',
+      lbl_piece_w:        'Largura (cm)',
+      lbl_piece_l:        'Comprimento (cm)',
+      lbl_margin:         'Margem de lucro (%)',
+      lbl_selling:        'Seu preço de venda ($)',
+      lbl_packing_manual: 'Custo de embalagem manual ($)',
+      lbl_box_reference:  'Tamanhos de caixa predefinidos (referência)',
+      th_box_size:        'Tamanho',
+      th_box_dims:        'Dimensões',
+      th_box_cost:        'Custo',
+      btn_calculate:      'Calcular',
+      btn_export:         'Exportar PDF',
+      err_positive:       'Deve ser maior que 0',
+      err_print_time:     'O tempo de impressão deve ser maior que 0',
+      err_minutes:        'Os minutos devem estar entre 0 e 59',
+      err_margin_100:     'A margem deve ser menor que 100%',
+      err_failure_range:  'Deve estar entre 0 e 99',
+      warn_no_capacity:   'O tempo de impressão excede as horas de trabalho. Nenhuma peça pode ser produzida por dia.',
+      warn_box_overflow:  'A peça excede o tamanho da maior caixa. Insira o custo de embalagem manualmente.',
+      warn_no_breakeven:  'O preço de venda não cobre os custos variáveis. Aumente seu preço.',
+      warn_no_revenue:    'Nenhuma peça pode ser produzida. Projeção de receita indisponível.',
+      res_breakdown_title:'Composição de Custos',
+      res_filament:       'Filamento (ajustado por falhas)',
+      res_electricity:    'Eletricidade (ajustada por falhas)',
+      res_depreciation:   'Depreciação da máquina (ajustada)',
+      res_printing_labor: 'Mão de obra de impressão (ajustada)',
+      res_postproc:       'Pós-processamento',
+      res_accessories:    'Acessórios',
+      res_packing:        'Embalagem',
+      res_total:          'Custo total por peça',
+      res_suggested_title:'Preço Sugerido',
+      res_suggested_label:'Preço de venda sugerido',
+      res_search_label:   'Pesquisar preços de referência online:',
+      res_ref_url_placeholder: 'Cole aqui uma URL de referência de preço...',
+      search_google:      'Pesquisar no Google',
+      search_etsy:        'Pesquisar no Etsy',
+      search_makerworld:  'Pesquisar no MakerWorld',
+      res_capacity_title: 'Capacidade de Produção',
+      res_pieces_day:     'Peças por dia',
+      res_pieces_month:   'Peças por mês',
+      res_revenue_title:  'Projeção de Receita',
+      res_selling_price:  'Seu preço de venda',
+      res_daily_revenue:  'Receita diária',
+      res_monthly_revenue:'Receita mensal',
+      res_monthly_profit: 'Lucro mensal',
+      res_actual_margin:  'Margem de lucro',
+      res_breakeven_title:'Ponto de Equilíbrio',
+      res_fixed_costs:    'Custos fixos mensais',
+      res_variable_cost:  'Custo variável por peça',
+      res_contribution:   'Margem de contribuição por peça',
+      res_breakeven_units:'Ponto de equilíbrio (peças/mês)',
+      res_breakeven_days: 'Dias para atingir equilíbrio',
+      depr_note:          'Depreciação por hora:',
+      box_selected:       'Caixa selecionada:',
+      na:                 'N/D',
+    }
+  };
+
+  // ─── State ──────────────────────────────────────────────────────────────────
+  let lang        = 'en';
+  let lastResult  = null;
+  let lastInputs  = null;
+
+  // ─── i18n helpers ───────────────────────────────────────────────────────────
+  function t(key) {
+    return STRINGS[lang][key] !== undefined ? STRINGS[lang][key] : key;
+  }
+
+  function detectLang() {
+    const nav = (navigator.language || '').toLowerCase();
+    return nav.startsWith('pt') ? 'pt' : 'en';
+  }
+
+  function applyLang(l) {
+    lang = l;
+    document.documentElement.lang = l === 'pt' ? 'pt-BR' : 'en';
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const val = STRINGS[l][el.dataset.i18n];
+      if (val === undefined) return;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.placeholder = val;
+      } else {
+        el.textContent = val;
+      }
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const val = STRINGS[l][el.dataset.i18nPlaceholder];
+      if (val !== undefined) el.placeholder = val;
+    });
+    document.getElementById('btn-en').classList.toggle('active', l === 'en');
+    document.getElementById('btn-pt').classList.toggle('active', l === 'pt');
+    if (lastResult && lastInputs) renderResults(lastResult, lastInputs, false);
+  }
+
+  // ─── Box data & selection ───────────────────────────────────────────────────
+  const BOXES = [
+    { name: 'XS', dims: [10, 10, 10], cost: 1 },
+    { name: 'S',  dims: [20, 15, 10], cost: 2 },
+    { name: 'M',  dims: [30, 20, 15], cost: 3 },
+    { name: 'L',  dims: [40, 30, 20], cost: 4 },
+    { name: 'XL', dims: [50, 40, 30], cost: 5 },
+  ];
+
+  function selectBox(h, w, l) {
+    const piece = [h, w, l].sort((a, b) => b - a);
+    for (const box of BOXES) {
+      const bd = [...box.dims].sort((a, b) => b - a);
+      if (piece[0] <= bd[0] && piece[1] <= bd[1] && piece[2] <= bd[2]) return box;
+    }
+    return null;
+  }
+
+  // ─── Read inputs ────────────────────────────────────────────────────────────
+  function readInputs() {
+    const n = id => parseFloat(document.getElementById(id).value) || 0;
+    const i = id => parseInt(document.getElementById(id).value)   || 0;
+    return {
+      weight:           n('weight'),
+      print_h:          i('print-h'),
+      print_min:        i('print-min'),
+      filament_price:   n('filament-price'),
+      working_h:        n('working-h'),
+      working_days:     n('working-days'),
+      labor_rate:       n('labor-rate'),
+      electricity_rate: n('electricity-rate'),
+      printer_price:    n('printer-price'),
+      failure_rate:     n('failure-rate'),
+      postproc_hours:   n('postproc-hours'),
+      accessories_cost: n('accessories-cost'),
+      piece_h:          n('piece-h'),
+      piece_w:          n('piece-w'),
+      piece_l:          n('piece-l'),
+      packing_manual:   n('packing-manual'),
+      margin:           n('margin'),
+      selling_price:    n('selling-price'),
+    };
+  }
+
+  // ─── Validation ─────────────────────────────────────────────────────────────
+  function clearErrors() {
+    document.querySelectorAll('.field-error.show').forEach(e => e.classList.remove('show'));
+    document.querySelectorAll('input.err-input').forEach(e => e.classList.remove('err-input'));
+  }
+
+  function flagError(inputId, errorId) {
+    const inp = document.getElementById(inputId);
+    const err = document.getElementById(errorId);
+    if (inp) inp.classList.add('err-input');
+    if (err) err.classList.add('show');
+  }
+
+  function validateInputs(inp) {
+    let ok = true;
+    const fail = (inpId, errId) => { flagError(inpId, errId); ok = false; };
+
+    if (inp.weight           <= 0)                      fail('weight',        'err-weight');
+    if (inp.print_h === 0 && inp.print_min === 0)       fail('print-h',       'err-print-time');
+    if (inp.print_min < 0 || inp.print_min > 59)        fail('print-min',     'err-print-min');
+    if (inp.filament_price   <= 0)                      fail('filament-price','err-filament');
+    if (inp.working_h        <= 0)                      fail('working-h',     'err-working-h');
+    if (inp.working_days     <= 0)                      fail('working-days',  'err-working-days');
+    if (inp.failure_rate < 0 || inp.failure_rate > 99)  fail('failure-rate',  'err-failure');
+    if (inp.margin >= 100)                              fail('margin',        'err-margin');
+    if (inp.selling_price    <= 0)                      fail('selling-price', 'err-selling');
+
+    if (!ok) {
+      const first = document.querySelector('input.err-input');
+      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return ok;
+  }
+
+  // ─── Core calculation ───────────────────────────────────────────────────────
+  function calculate(inp) {
+    const print_time      = inp.print_h + inp.print_min / 60;
+    const failure_factor  = 1 / (1 - inp.failure_rate / 100);
+
+    const filament_cost   = (inp.weight / 1000) * inp.filament_price;
+    const elec_cost       = print_time * inp.electricity_rate;
+    const depr_per_hour   = (inp.printer_price > 0 && inp.working_h > 0 && inp.working_days > 0)
+      ? inp.printer_price / (3 * 12 * inp.working_days * inp.working_h)
+      : 0;
+    const depr_piece      = depr_per_hour * print_time;
+    const print_labor     = print_time * inp.labor_rate;
+
+    const filament_adj    = filament_cost * failure_factor;
+    const elec_adj        = elec_cost     * failure_factor;
+    const depr_adj        = depr_piece    * failure_factor;
+    const labor_adj       = print_labor   * failure_factor;
+
+    const post_proc_cost  = inp.postproc_hours * inp.labor_rate;
+
+    // Packing
+    const hasDims = inp.piece_h > 0 && inp.piece_w > 0 && inp.piece_l > 0;
+    let box           = null;
+    let packing_cost  = 0;
+    let box_overflow  = false;
+    if (hasDims) {
+      box = selectBox(inp.piece_h, inp.piece_w, inp.piece_l);
+      if (box) {
+        packing_cost = box.cost;
+      } else {
+        box_overflow = true;
+        packing_cost = inp.packing_manual;
+      }
+    }
+
+    const total_cost = filament_adj + elec_adj + depr_adj + labor_adj
+      + post_proc_cost + inp.accessories_cost + packing_cost;
+
+    const suggested_price = inp.margin < 100
+      ? total_cost / (1 - inp.margin / 100)
+      : total_cost;
+
+    // Capacity
+    const pieces_per_day   = print_time > 0 ? Math.floor(inp.working_h / print_time) : 0;
+    const pieces_per_month = pieces_per_day * inp.working_days;
+    const no_capacity      = pieces_per_day === 0;
+
+    // Revenue
+    const daily_revenue    = pieces_per_day   * inp.selling_price;
+    const monthly_revenue  = pieces_per_month * inp.selling_price;
+    const monthly_profit   = monthly_revenue  - pieces_per_month * total_cost;
+    const actual_margin    = monthly_revenue  > 0 ? (monthly_profit / monthly_revenue) * 100 : 0;
+
+    // Break-even
+    // Fixed: full operator wages (paid regardless of output) + machine monthly depreciation
+    const fixed_monthly = (inp.working_h * inp.working_days * inp.labor_rate)
+      + (inp.printer_price > 0 ? inp.printer_price / 36 : 0);
+
+    // Variable: per-piece material, energy, accessories, packing, post-processing labor
+    const variable_per_piece = filament_adj + elec_adj
+      + inp.accessories_cost + packing_cost + post_proc_cost;
+
+    const contribution    = inp.selling_price - variable_per_piece;
+    const no_breakeven    = contribution <= 0;
+    const breakeven_units = !no_breakeven ? Math.ceil(fixed_monthly / contribution) : null;
+    const breakeven_days  = (!no_breakeven && pieces_per_day > 0)
+      ? Math.ceil(breakeven_units / pieces_per_day) : null;
+
+    return {
+      filament_adj, elec_adj, depr_adj, labor_adj,
+      post_proc_cost, accessories_cost: inp.accessories_cost,
+      packing_cost, box, box_overflow, hasDims,
+      total_cost, suggested_price,
+      pieces_per_day, pieces_per_month, no_capacity,
+      daily_revenue, monthly_revenue, monthly_profit, actual_margin,
+      fixed_monthly, variable_per_piece, contribution,
+      breakeven_units, breakeven_days, no_breakeven,
+      depr_per_hour,
+      weight: inp.weight,
+      selling_price: inp.selling_price,
+    };
+  }
+
+  // ─── Formatting ─────────────────────────────────────────────────────────────
+  function fmt(val, dec = 2) {
+    const locale = lang === 'pt' ? 'pt-BR' : 'en-US';
+    return '$' + val.toLocaleString(locale, {
+      minimumFractionDigits:  dec,
+      maximumFractionDigits:  dec,
+    });
+  }
+
+  function fmtNum(val) {
+    return val.toLocaleString(lang === 'pt' ? 'pt-BR' : 'en-US');
+  }
+
+  function setText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  // ─── Render results ─────────────────────────────────────────────────────────
+  function renderResults(res, inp, scroll = true) {
+
+    // Cost breakdown
+    setText('r-filament',        fmt(res.filament_adj));
+    setText('r-electricity',     fmt(res.elec_adj));
+    setText('r-depreciation',    fmt(res.depr_adj));
+    setText('r-printing-labor',  fmt(res.labor_adj));
+    setText('r-postproc',        fmt(res.post_proc_cost));
+    setText('r-accessories',     fmt(res.accessories_cost));
+
+    const packingLabel = document.getElementById('r-packing-label');
+    if (res.box) {
+      packingLabel.textContent = `(${res.box.name})`;
+    } else if (res.box_overflow) {
+      packingLabel.textContent = `(${t('lbl_packing_manual')})`;
+    } else {
+      packingLabel.textContent = '';
+    }
+    setText('r-packing', fmt(res.packing_cost));
+    setText('r-total',   fmt(res.total_cost));
+
+    // Suggested price
+    setText('r-suggested-price', fmt(res.suggested_price));
+
+    // Search buttons
+    const w = encodeURIComponent(inp.weight + 'g');
+    document.getElementById('search-google').href =
+      `https://www.google.com/search?q=3d+print+cost+${w}`;
+    document.getElementById('search-etsy').href =
+      `https://www.etsy.com/search?q=3d+printed+${w}`;
+    document.getElementById('search-makerworld').href =
+      `https://makerworld.com/en/search/models?keyword=3d+print`;
+
+    // Depreciation note in form
+    const deprNote = document.getElementById('depreciation-note');
+    if (res.depr_per_hour > 0) {
+      deprNote.textContent = `${t('depr_note')} ${fmt(res.depr_per_hour)}/h`;
+      deprNote.style.display = 'block';
+    } else {
+      deprNote.style.display = 'none';
+    }
+
+    // Box info in packing section
+    const boxInfo          = document.getElementById('box-info');
+    const packingManualFld = document.getElementById('packing-manual-field');
+    if (res.hasDims) {
+      if (res.box) {
+        const dimStr = [...res.box.dims].sort((a,b) => b-a).join('×');
+        boxInfo.innerHTML = `<span class="box-badge">${t('box_selected')} ${res.box.name} — ${dimStr} cm — ${fmt(res.box.cost, 0)}</span>`;
+        boxInfo.style.display  = 'block';
+        packingManualFld.style.display = 'none';
+      } else {
+        boxInfo.innerHTML = `<div class="alert alert-warning">${t('warn_box_overflow')}</div>`;
+        boxInfo.style.display  = 'block';
+        packingManualFld.style.display = 'block';
+      }
+    } else {
+      boxInfo.style.display          = 'none';
+      packingManualFld.style.display = 'none';
+    }
+
+    // Capacity
+    const capWarn = document.getElementById('capacity-warning');
+    const capGrid = document.getElementById('capacity-grid');
+    if (res.no_capacity) {
+      capWarn.textContent   = t('warn_no_capacity');
+      capWarn.style.display = 'block';
+      capGrid.style.display = 'none';
+    } else {
+      capWarn.style.display = 'none';
+      capGrid.style.display = 'grid';
+      setText('r-pieces-day',   fmtNum(res.pieces_per_day));
+      setText('r-pieces-month', fmtNum(res.pieces_per_month));
+    }
+
+    // Revenue
+    const revWarn    = document.getElementById('revenue-warning');
+    const revContent = document.getElementById('revenue-content');
+    if (res.no_capacity) {
+      revWarn.textContent    = t('warn_no_revenue');
+      revWarn.style.display  = 'block';
+      revContent.style.display = 'none';
+    } else {
+      revWarn.style.display    = 'none';
+      revContent.style.display = 'block';
+      setText('r-selling',         fmt(res.selling_price));
+      setText('r-daily-revenue',   fmt(res.daily_revenue));
+      setText('r-monthly-revenue', fmt(res.monthly_revenue));
+
+      const profitEl = document.getElementById('r-monthly-profit');
+      profitEl.textContent = fmt(res.monthly_profit);
+      profitEl.className   = 'result-value ' + (res.monthly_profit >= 0 ? 'positive' : 'negative');
+
+      const marginEl = document.getElementById('r-actual-margin');
+      marginEl.textContent = res.actual_margin.toFixed(1) + '%';
+      marginEl.className   = 'result-value ' + (res.actual_margin >= 0 ? 'positive' : 'negative');
+    }
+
+    // Break-even
+    const beErr     = document.getElementById('breakeven-error');
+    const beContent = document.getElementById('breakeven-content');
+    if (res.no_breakeven) {
+      beErr.textContent    = t('warn_no_breakeven');
+      beErr.style.display  = 'block';
+      beContent.style.display = 'none';
+    } else {
+      beErr.style.display     = 'none';
+      beContent.style.display = 'block';
+      setText('r-fixed-costs',    fmt(res.fixed_monthly));
+      setText('r-variable-cost',  fmt(res.variable_per_piece));
+      setText('r-contribution',   fmt(res.contribution));
+      setText('r-breakeven-units',
+        res.breakeven_units !== null ? fmtNum(res.breakeven_units) : t('na'));
+      setText('r-breakeven-days',
+        res.breakeven_days  !== null ? fmtNum(res.breakeven_days)  : t('na'));
+    }
+
+    // Show results section and export button
+    const resultsEl = document.getElementById('results');
+    resultsEl.style.display = 'block';
+    document.getElementById('btn-export').style.display = 'block';
+
+    if (scroll) resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ─── PDF export ─────────────────────────────────────────────────────────────
+  function exportPDF() {
+    const pdfHeader = document.getElementById('pdf-header');
+    const pdfDate   = document.getElementById('pdf-date');
+    pdfDate.textContent = new Date().toLocaleDateString(
+      lang === 'pt' ? 'pt-BR' : 'en-US',
+      { year: 'numeric', month: 'long', day: 'numeric' }
+    );
+    pdfHeader.style.display = 'block';
+
+    const hideEls = document.querySelectorAll('.pdf-hide');
+    const saved   = [];
+    hideEls.forEach(el => { saved.push(el.style.display); el.style.display = 'none'; });
+
+    const date = new Date().toISOString().slice(0, 10);
+    html2pdf().set({
+      margin:      12,
+      filename:    `calculadora3d-${date}.pdf`,
+      html2canvas: { scale: 2, useCORS: true, logging: false },
+      jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(document.getElementById('results')).save().then(() => {
+      pdfHeader.style.display = 'none';
+      hideEls.forEach((el, idx) => { el.style.display = saved[idx]; });
+    });
+  }
+
+  // ─── Reference URL handler ───────────────────────────────────────────────────
+  function onRefUrl(e) {
+    const link = document.getElementById('ref-url-link');
+    const val  = e.target.value.trim();
+    if (val) {
+      link.href        = val;
+      link.textContent = val;
+      link.style.display = 'block';
+    } else {
+      link.style.display = 'none';
+    }
+  }
+
+  // ─── Calculate handler ───────────────────────────────────────────────────────
+  function onCalculate() {
+    clearErrors();
+    const inputs = readInputs();
+    if (!validateInputs(inputs)) return;
+    lastInputs = inputs;
+    lastResult = calculate(inputs);
+    renderResults(lastResult, lastInputs);
+  }
+
+  // ─── Init ────────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    lang = detectLang();
+    applyLang(lang);
+    document.getElementById('btn-en').addEventListener('click', () => applyLang('en'));
+    document.getElementById('btn-pt').addEventListener('click', () => applyLang('pt'));
+    document.getElementById('btn-calculate').addEventListener('click', onCalculate);
+    document.getElementById('btn-export').addEventListener('click', exportPDF);
+    document.getElementById('ref-url-input').addEventListener('input', onRefUrl);
+  });
+  </script>
+</body>
+</html>
