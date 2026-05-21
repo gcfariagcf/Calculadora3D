@@ -220,7 +220,23 @@ Tasks:
 
 ---
 
-## Phase 10 — Ad Space Setup & Final Polish
+## Phase 10 — Session Persistence (Machine & Operations)
+
+**Goal:** Restore Machine & Operations field values automatically across page loads using `localStorage`.
+
+Tasks:
+- [ ] Define storage key constant: `const MACHINE_STORAGE_KEY = 'calc3d_machine'`
+- [ ] Define the six persisted field IDs: `['working-h', 'working-days', 'labor-rate', 'electricity-rate', 'printer-price', 'failure-rate']`
+- [ ] `function saveMachine()`: reads current values of the six fields, serialises to JSON, writes to `localStorage` — wrapped in `try/catch` for private-browsing safety
+- [ ] `function loadMachine()`: reads `calc3d_machine` from `localStorage`, parses JSON, writes each stored value back to its input field — also wrapped in `try/catch`; skips any missing key so HTML defaults survive
+- [ ] Call `loadMachine()` at the top of `DOMContentLoaded`, before `applyLang()`, so values are present before the first language render
+- [ ] Attach `saveMachine` as an `input` listener on each of the six fields (alongside `liveUpdate`)
+
+**Deliverable:** Machine & Operations values survive page refresh and new tabs; failure is silent if storage is blocked.
+
+---
+
+## Phase 11 — Ad Space Setup & Final Polish
 
 **Goal:** Production-ready ad slots, accessibility, and final QA.
 
@@ -255,7 +271,8 @@ Tasks:
 | 7 | Result rendering | All result cards populated |
 | 8 | Price reference | Search links + URL field |
 | 9 | PDF export | Downloadable results PDF |
-| 10 | Polish + QA | Ship-ready file |
+| 10 | Session persistence | Machine & Operations saved across loads |
+| 11 | Polish + QA | Ship-ready file |
 
 ---
 

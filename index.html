@@ -874,6 +874,31 @@
   let lastResult  = null;
   let lastInputs  = null;
 
+  // ─── Session persistence — Machine & Operations ──────────────────────────────
+  const MACHINE_KEY    = 'calc3d_machine';
+  const MACHINE_FIELDS = ['working-h','working-days','labor-rate','electricity-rate','printer-price','failure-rate'];
+
+  function saveMachine() {
+    try {
+      const data = {};
+      MACHINE_FIELDS.forEach(id => { data[id] = document.getElementById(id).value; });
+      localStorage.setItem(MACHINE_KEY, JSON.stringify(data));
+    } catch (_) {}
+  }
+
+  function loadMachine() {
+    try {
+      const raw = localStorage.getItem(MACHINE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      MACHINE_FIELDS.forEach(id => {
+        if (data[id] !== undefined && data[id] !== '') {
+          document.getElementById(id).value = data[id];
+        }
+      });
+    } catch (_) {}
+  }
+
   // ─── i18n helpers ───────────────────────────────────────────────────────────
   function t(key) {
     return STRINGS[lang][key] !== undefined ? STRINGS[lang][key] : key;
@@ -1260,6 +1285,7 @@
 
   // ─── Init ────────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', () => {
+    loadMachine();           // restore saved machine values before anything else
     lang = detectLang();
     applyLang(lang);
 
@@ -1279,7 +1305,7 @@
       liveUpdate();
     });
 
-    // Live update on all other inputs
+    // Live update on all inputs; also persist Machine & Operations fields
     const liveIds = [
       'weight','pieces-per-cycle','print-h','print-min','filament-price',
       'working-h','working-days','labor-rate','electricity-rate',
@@ -1289,6 +1315,11 @@
       document.getElementById(id).addEventListener('input', liveUpdate);
     });
     document.getElementById('box-size').addEventListener('change', liveUpdate);
+
+    // Persist Machine & Operations on every change
+    MACHINE_FIELDS.forEach(id => {
+      document.getElementById(id).addEventListener('input', saveMachine);
+    });
   });
   </script>
 </body>

@@ -360,14 +360,37 @@ Both slots are empty `<div>` elements with comments marking where ad network scr
 - Results section is not shown if there are validation errors
 - If `pieces_per_day = 0`: display warning in capacity section, skip revenue and break-even
 - If `contribution_margin ≤ 0`: display error in break-even section
-- If piece dimensions exceed XL box: display packing warning and show manual cost override field
+- Packing cost is always resolved from the dropdown selection — no overflow warnings needed
 
 ---
 
-## 12. Out of Scope (v1.0)
+## 12. Session Persistence — Machine & Operations
+
+The six fields in the **Machine & Operations** section are saved to `localStorage` automatically and restored on every page load. All other form sections remain ephemeral (cleared on reload).
+
+| Field | localStorage key (inside object) |
+|-------|----------------------------------|
+| Working hours per day | `working_h` |
+| Working days per month | `working_days` |
+| Labor cost per hour | `labor_rate` |
+| Electricity cost per hour | `electricity_rate` |
+| Printer purchase price | `printer_price` |
+| Failure rate | `failure_rate` |
+
+**Storage key:** `calc3d_machine` (single JSON object).
+
+**Behaviour:**
+- Values are written to `localStorage` on every `input` event in Section 2.
+- On `DOMContentLoaded`, stored values are read and applied to the fields before any other init logic.
+- If no stored data exists, fields keep their HTML defaults (failure rate = 10, others = 0).
+- If `localStorage` is unavailable (e.g. private browsing restrictions), the page degrades silently — no error is shown.
+
+---
+
+## 13. Out of Scope (v1.0)
 
 - Multiple printers
-- Saving/loading sessions
+- Saving/loading sessions for sections other than Machine & Operations
 - User accounts
 - Backend or database
 - Email sending
