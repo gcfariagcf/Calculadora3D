@@ -69,12 +69,13 @@ e log| Logo | Fetch from Duo3DLab's Instagram profile — [https://www.instagram
 
 ### Section 1 — Print Parameters
 
-| Field | Type | Unit | Validation | Notes |
-|-------|------|------|------------|-------|
-| Piece weight | number | g | > 0 | Weight of one printed piece |
-| Print time — hours | number | h | ≥ 0, integer | |
-| Print time — minutes | number | min | 0–59, integer | At least one of h/min must be > 0 |
-| Filament price | number | $/kg | > 0 | |
+| Field | Type | Unit | Validation | Default | Notes |
+|-------|------|------|------------|---------|-------|
+| Piece weight | number | g | > 0 | — | Weight of one printed piece |
+| Pieces per printing cycle | number | — | ≥ 1, integer | **1** | How many pieces are printed simultaneously per cycle |
+| Print time — hours | number | h | ≥ 0, integer | — | |
+| Print time — minutes | number | min | 0–59, integer | — | At least one of h/min must be > 0 |
+| Filament price | number | $/kg | > 0 | — | |
 
 ### Section 2 — Machine & Operations
 
@@ -94,18 +95,16 @@ e log| Logo | Fetch from Duo3DLab's Instagram profile — [https://www.instagram
 
 | Field | Type | Unit | Validation |
 |-------|------|------|------------|
-| Post-processing time per unit | number | h | ≥ 0 |
+| Post-processing time per unit | number | **min** | ≥ 0 |
 
 ### Section 4 — Accessories & Packing
 
-| Field | Type | Unit | Validation | Notes |
-|-------|------|------|------------|-------|
-| Accessories cost per unit | number | $ | ≥ 0 | Single total |
-| Piece height | number | cm | > 0 | Used for box auto-selection |
-| Piece width | number | cm | > 0 | |
-| Piece length | number | cm | > 0 | |
+| Field | Type | Unit | Validation | Default | Notes |
+|-------|------|------|------------|---------|-------|
+| Accessories cost per unit | number | $ | ≥ 0 | — | Single total |
+| Box size | select | — | required | **S** | User selects from predefined list |
 
-**Predefined box sizes (read-only reference, auto-selected):**
+**Predefined box sizes (dropdown options):**
 
 | Size | Dimensions (cm) | Cost |
 |------|----------------|------|
@@ -115,14 +114,16 @@ e log| Logo | Fetch from Duo3DLab's Instagram profile — [https://www.instagram
 | L | 40 × 30 × 20 | $4 |
 | XL | 50 × 40 × 30 | $5 |
 
-**Box selection logic:** Sort piece dimensions (H, W, L) descending → compare against each box's sorted dimensions ascending. Select the smallest box where all three piece dimensions fit. If the piece exceeds the XL box, show a warning: *"Piece exceeds the largest predefined box. Enter packing cost manually."* and add a manual override field.
+The dropdown shows size, dimensions, and cost for each option. Selecting a size sets the packing cost directly — no dimension inputs or auto-selection logic required.
 
 ### Section 5 — Pricing
 
 | Field | Type | Unit | Validation | Notes |
 |-------|------|------|------------|-------|
-| Desired profit margin | number | % | 0–99 | Used to compute suggested price |
-| Your selling price | number | $ | > 0 | Used for revenue & break-even |
+| Desired profit margin | number | % | 0–99 | Typing here auto-calculates and fills the selling price field |
+| Your selling price | number | $ | > 0 | Typing here auto-calculates and fills the margin field |
+
+The two fields are dynamically linked: editing one immediately derives and updates the other using `total_cost` calculated from the current form values. The Calculate button is still available for an explicit full recalculation with validation.
 
 ---
 
@@ -130,15 +131,17 @@ e log| Logo | Fetch from Duo3DLab's Instagram profile — [https://www.instagram
 
 ### 5.1 Derived values
 
+Electricity, machine depreciation, and printing labor are **cycle costs** shared across all pieces in the cycle; filament cost is already per-piece.
+
 ```
-print_time_h     = print_hours + print_minutes / 60
-filament_cost    = (weight_g / 1000) × filament_price_per_kg
-electricity_cost = print_time_h × electricity_cost_per_hour
-depreciation_per_hour  = printer_price / (3 × 12 × working_days × working_hours)
-depreciation_per_piece = depreciation_per_hour × print_time_h
-printing_labor   = print_time_h × labor_cost_per_hour
-post_proc_cost   = post_processing_hours × labor_cost_per_hour
-failure_factor   = 1 / (1 − failure_rate / 100)
+print_time_h         = print_hours + print_minutes / 60
+filament_cost        = (weight_g / 1000) × filament_price_per_kg
+electricity_cost     = (print_time_h × electricity_rate) / pieces_per_cycle
+depreciation_per_hour= printer_price / (3 × 12 × working_days × working_hours)
+depreciation_per_piece = (depreciation_per_hour × print_time_h) / pieces_per_cycle
+printing_labor       = (print_time_h × labor_cost_per_hour) / pieces_per_cycle
+post_proc_cost       = (post_processing_minutes / 60) × labor_cost_per_hour
+failure_factor       = 1 / (1 − failure_rate / 100)
 ```
 
 ### 5.2 Failure rate application
@@ -171,7 +174,8 @@ Edge case: if `profit_margin = 100`, show error *"Margin cannot be 100%."*
 ### 5.5 Production capacity
 
 ```
-pieces_per_day   = floor(working_hours × 60 / (print_time_h × 60))
+cycles_per_day   = floor(working_hours / print_time_h)
+pieces_per_day   = cycles_per_day × pieces_per_cycle
 pieces_per_month = pieces_per_day × working_days
 ```
 

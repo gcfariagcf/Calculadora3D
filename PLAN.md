@@ -19,10 +19,10 @@ Tasks:
   - `#ad-sidebar` — sidebar ad placeholder div inside `#sidebar`
   - `<footer>` — "Powered by Duo3DLab"
 - [ ] Inside `#content`, the form `<form id="calc-form">` with five `<section>` elements:
-  - `#s-print` — Print Parameters (weight, print_h, print_min, filament_price)
+  - `#s-print` — Print Parameters (weight, pieces_per_cycle[default=1], print_h, print_min, filament_price)
   - `#s-machine` — Machine & Operations (working_h, working_days, labor_rate, elec_rate, printer_price, failure_rate[default=10])
-  - `#s-postproc` — Post-Processing (postproc_hours)
-  - `#s-packing` — Accessories & Packing (accessories_cost, piece_h, piece_w, piece_l, read-only box display)
+  - `#s-postproc` — Post-Processing (postproc_minutes — unit is minutes, not hours)
+  - `#s-packing` — Accessories & Packing (accessories_cost, box_size select[default=S])
   - `#s-pricing` — Pricing (margin, selling_price)
 - [ ] `<button id="btn-calculate">` below the form
 - [ ] `#results` div (hidden by default) containing five result cards:
@@ -88,30 +88,26 @@ Tasks:
 
 ---
 
-## Phase 4 — Box Size Auto-Selection
+## Phase 4 — Box Size Dropdown
 
-**Goal:** Given piece H, W, L, select smallest fitting predefined box and return its cost.
+**Goal:** Let the user select a packing box from a dropdown; cost is set directly from the selection.
 
 Tasks:
 - [ ] Define box data:
   ```js
   const BOXES = [
-    { name: 'XS', dims: [10,10,10], cost: 1 },
-    { name: 'S',  dims: [20,15,10], cost: 2 },
-    { name: 'M',  dims: [30,20,15], cost: 3 },
-    { name: 'L',  dims: [40,30,20], cost: 4 },
-    { name: 'XL', dims: [50,40,30], cost: 5 },
+    { name: 'XS', dims: '10×10×10 cm', cost: 1 },
+    { name: 'S',  dims: '20×15×10 cm', cost: 2 },
+    { name: 'M',  dims: '30×20×15 cm', cost: 3 },
+    { name: 'L',  dims: '40×30×20 cm', cost: 4 },
+    { name: 'XL', dims: '50×40×30 cm', cost: 5 },
   ]
   ```
-- [ ] `function selectBox(h, w, l)`:
-  - Sort piece dims descending: `piece = [max, mid, min]`
-  - For each box (smallest first), sort box dims descending
-  - Return first box where `piece[0] ≤ box[0] && piece[1] ≤ box[1] && piece[2] ≤ box[2]`
-  - Return `null` if none fit (triggers manual cost override)
-- [ ] In the packing section: show auto-selected box name and cost as read-only text below dimension inputs, updated on Calculate
-- [ ] If `selectBox` returns `null`: show warning string (i18n key `warn_box_overflow`) and reveal a manual packing cost input `#packing-override`
+- [ ] `<select id="box-size">` with one `<option>` per box showing name, dimensions, and cost; default selected: `S`
+- [ ] In `readInputs()`: read `box-size` value, look up matching entry in `BOXES`, use its `cost` as `packing_cost`
+- [ ] No dimension inputs, no auto-selection algorithm, no manual override field
 
-**Deliverable:** Box is selected and displayed correctly for any piece dimensions entered.
+**Deliverable:** Packing cost is always set immediately from the dropdown selection.
 
 ---
 
@@ -121,23 +117,15 @@ Tasks:
 
 Tasks:
 - [ ] `function readInputs()` — reads and parses all form values, returns a plain object; returns `null` if validation fails (see Phase 6 for validation)
-- [ ] `function calculate(inputs)` — pure function, takes the inputs object, returns a `results` object with every derived value:
-  ```
-  print_time_h, filament_adj, electricity_adj, depreciation_adj,
-  printing_labor_adj, post_proc_cost, packing_cost, box_name,
-  total_cost, suggested_price, pieces_per_day, pieces_per_month,
-  daily_revenue, monthly_revenue, monthly_profit, actual_margin,
-  fixed_monthly_costs, variable_cost_per_piece, contribution_margin,
-  break_even_units, break_even_days, depreciation_per_hour
-  ```
+- [ ] `function calculate(inputs)` — pure function; cycle costs (electricity, depreciation, printing labor) are divided by `pieces_per_cycle`; `post_proc_cost` uses `postproc_minutes / 60`; returns full results object
 - [ ] Handle all edge cases:
   - `failure_rate = 100` → error
   - `profit_margin ≥ 100` → error
   - `print_time_h > working_hours` → `pieces_per_day = 0`, flag `warn_no_capacity`
   - `contribution_margin ≤ 0` → flag `warn_no_breakeven`
-  - `selectBox` returns null → flag `warn_box_overflow`, use manual packing cost
-- [ ] Store last result in module-level `let lastResult = null` for re-render on lang switch
-- [ ] Calculate button click handler: `readInputs()` → `calculate()` → `renderResults()`
+- [ ] Store last result in `let lastResult = null` for re-render on lang switch
+- [ ] Calculate button click handler: `readInputs()` → `validate()` → `calculate()` → `renderResults(scroll=true)`
+- [ ] `function liveUpdate()`: called on every input event; skips strict validation; calls `calculate()` → `renderResults(scroll=false)` only when minimum required fields are filled
 
 **Deliverable:** Clicking Calculate produces a correct result object for any valid input set.
 
@@ -154,7 +142,8 @@ Tasks:
   - print_min: 0–59
   - failure_rate: 0–99
   - profit_margin: 0–99
-  - piece dims: all > 0 if any one is filled (or all three required)
+  - pieces_per_cycle: ≥ 1 integer (default 1)
+  - postproc_minutes: ≥ 0
 - [ ] For each error: add CSS error class to input, insert `<span class="field-error" data-i18n="...">` below it
 - [ ] `clearErrors()` removes all error states before each validation pass
 - [ ] Scroll to first error field if errors exist

@@ -202,6 +202,22 @@
       color: var(--text-muted);
       margin-bottom: .3rem;
     }
+    .field select {
+      width: 100%;
+      padding: .5rem .75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: .9rem;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .field select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+    }
     .field input[type="number"], .field input[type="url"] {
       width: 100%;
       padding: .5rem .75rem;
@@ -480,10 +496,17 @@
         <!-- Section 1: Print Parameters -->
         <section class="card" id="s-print">
           <h2 data-i18n="section_print"></h2>
-          <div class="field">
-            <label for="weight" data-i18n="lbl_weight"></label>
-            <input type="number" id="weight" min="0.1" step="0.1" placeholder="e.g. 45">
-            <span class="field-error" id="err-weight" data-i18n="err_positive"></span>
+          <div class="field-row">
+            <div class="field">
+              <label for="weight" data-i18n="lbl_weight"></label>
+              <input type="number" id="weight" min="0.1" step="0.1" placeholder="e.g. 45">
+              <span class="field-error" id="err-weight" data-i18n="err_positive"></span>
+            </div>
+            <div class="field">
+              <label for="pieces-per-cycle" data-i18n="lbl_pieces_per_cycle"></label>
+              <input type="number" id="pieces-per-cycle" min="1" step="1" value="1" placeholder="1">
+              <span class="field-error" id="err-pieces-per-cycle" data-i18n="err_min_one"></span>
+            </div>
           </div>
           <div class="field-row">
             <div class="field">
@@ -545,57 +568,29 @@
         <section class="card" id="s-postproc">
           <h2 data-i18n="section_postproc"></h2>
           <div class="field">
-            <label for="postproc-hours" data-i18n="lbl_postproc"></label>
-            <input type="number" id="postproc-hours" min="0" step="0.25" value="0" placeholder="0">
+            <label for="postproc-minutes" data-i18n="lbl_postproc"></label>
+            <input type="number" id="postproc-minutes" min="0" step="1" value="0" placeholder="0">
           </div>
         </section>
 
         <!-- Section 4: Accessories & Packing -->
         <section class="card" id="s-packing">
           <h2 data-i18n="section_packing"></h2>
-          <div class="field">
-            <label for="accessories-cost" data-i18n="lbl_accessories"></label>
-            <input type="number" id="accessories-cost" min="0" step="0.01" value="0" placeholder="0.00">
-          </div>
-          <div class="field-row-3">
+          <div class="field-row">
             <div class="field">
-              <label for="piece-h" data-i18n="lbl_piece_h"></label>
-              <input type="number" id="piece-h" min="0" step="0.1" value="0" placeholder="0">
+              <label for="accessories-cost" data-i18n="lbl_accessories"></label>
+              <input type="number" id="accessories-cost" min="0" step="0.01" value="0" placeholder="0.00">
             </div>
             <div class="field">
-              <label for="piece-w" data-i18n="lbl_piece_w"></label>
-              <input type="number" id="piece-w" min="0" step="0.1" value="0" placeholder="0">
+              <label for="box-size" data-i18n="lbl_box_size"></label>
+              <select id="box-size">
+                <option value="XS">XS — 10×10×10 cm — $1</option>
+                <option value="S" selected>S — 20×15×10 cm — $2</option>
+                <option value="M">M — 30×20×15 cm — $3</option>
+                <option value="L">L — 40×30×20 cm — $4</option>
+                <option value="XL">XL — 50×40×30 cm — $5</option>
+              </select>
             </div>
-            <div class="field">
-              <label for="piece-l" data-i18n="lbl_piece_l"></label>
-              <input type="number" id="piece-l" min="0" step="0.1" value="0" placeholder="0">
-            </div>
-          </div>
-          <div id="box-info" style="display:none;"></div>
-          <div id="packing-manual-field" class="field" style="display:none; margin-top:.75rem;">
-            <label for="packing-manual" data-i18n="lbl_packing_manual"></label>
-            <input type="number" id="packing-manual" min="0" step="0.01" value="0">
-          </div>
-          <div class="field-note" style="margin-top:.75rem;">
-            <details>
-              <summary data-i18n="lbl_box_reference"></summary>
-              <table class="box-ref-table">
-                <thead>
-                  <tr>
-                    <th data-i18n="th_box_size"></th>
-                    <th data-i18n="th_box_dims"></th>
-                    <th data-i18n="th_box_cost"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr><td>XS</td><td>10 × 10 × 10 cm</td><td>$1</td></tr>
-                  <tr><td>S</td><td>20 × 15 × 10 cm</td><td>$2</td></tr>
-                  <tr><td>M</td><td>30 × 20 × 15 cm</td><td>$3</td></tr>
-                  <tr><td>L</td><td>40 × 30 × 20 cm</td><td>$4</td></tr>
-                  <tr><td>XL</td><td>50 × 40 × 30 cm</td><td>$5</td></tr>
-                </tbody>
-              </table>
-            </details>
           </div>
         </section>
 
@@ -751,18 +746,13 @@
       lbl_electricity:    'Electricity cost per hour ($)',
       lbl_printer_price:  'Printer purchase price ($)',
       lbl_failure:        'Failure rate (%)',
-      lbl_postproc:       'Post-processing time per unit (h)',
+      lbl_pieces_per_cycle:'Pieces per printing cycle',
+      lbl_postproc:       'Post-processing time per unit (min)',
       lbl_accessories:    'Accessories cost per unit ($)',
-      lbl_piece_h:        'Height (cm)',
-      lbl_piece_w:        'Width (cm)',
-      lbl_piece_l:        'Length (cm)',
+      lbl_box_size:       'Box size',
       lbl_margin:         'Profit margin (%)',
       lbl_selling:        'Your selling price ($)',
-      lbl_packing_manual: 'Manual packing cost ($)',
-      lbl_box_reference:  'Predefined box sizes (reference)',
-      th_box_size:        'Size',
-      th_box_dims:        'Dimensions',
-      th_box_cost:        'Cost',
+      err_min_one:        'Must be at least 1',
       btn_calculate:      'Calculate',
       btn_export:         'Export PDF',
       err_positive:       'Must be greater than 0',
@@ -771,7 +761,6 @@
       err_margin_100:     'Margin must be less than 100%',
       err_failure_range:  'Must be between 0 and 99',
       warn_no_capacity:   'Print time exceeds working hours. No pieces can be produced per day.',
-      warn_box_overflow:  'Piece exceeds the largest predefined box. Enter packing cost manually.',
       warn_no_breakeven:  'Selling price does not cover variable costs. Increase your price.',
       warn_no_revenue:    'No pieces can be produced. Revenue projection unavailable.',
       res_breakdown_title:'Cost Breakdown',
@@ -826,18 +815,13 @@
       lbl_electricity:    'Custo de eletricidade por hora ($)',
       lbl_printer_price:  'Preço de compra da impressora ($)',
       lbl_failure:        'Taxa de falha (%)',
-      lbl_postproc:       'Tempo de pós-processamento por unidade (h)',
+      lbl_pieces_per_cycle:'Peças por ciclo de impressão',
+      lbl_postproc:       'Tempo de pós-processamento por unidade (min)',
       lbl_accessories:    'Custo de acessórios por unidade ($)',
-      lbl_piece_h:        'Altura (cm)',
-      lbl_piece_w:        'Largura (cm)',
-      lbl_piece_l:        'Comprimento (cm)',
+      lbl_box_size:       'Tamanho da caixa',
       lbl_margin:         'Margem de lucro (%)',
       lbl_selling:        'Seu preço de venda ($)',
-      lbl_packing_manual: 'Custo de embalagem manual ($)',
-      lbl_box_reference:  'Tamanhos de caixa predefinidos (referência)',
-      th_box_size:        'Tamanho',
-      th_box_dims:        'Dimensões',
-      th_box_cost:        'Custo',
+      err_min_one:        'Deve ser pelo menos 1',
       btn_calculate:      'Calcular',
       btn_export:         'Exportar PDF',
       err_positive:       'Deve ser maior que 0',
@@ -846,7 +830,6 @@
       err_margin_100:     'A margem deve ser menor que 100%',
       err_failure_range:  'Deve estar entre 0 e 99',
       warn_no_capacity:   'O tempo de impressão excede as horas de trabalho. Nenhuma peça pode ser produzida por dia.',
-      warn_box_overflow:  'A peça excede o tamanho da maior caixa. Insira o custo de embalagem manualmente.',
       warn_no_breakeven:  'O preço de venda não cobre os custos variáveis. Aumente seu preço.',
       warn_no_revenue:    'Nenhuma peça pode ser produzida. Projeção de receita indisponível.',
       res_breakdown_title:'Composição de Custos',
@@ -922,47 +905,38 @@
     if (lastResult && lastInputs) renderResults(lastResult, lastInputs, false);
   }
 
-  // ─── Box data & selection ───────────────────────────────────────────────────
+  // ─── Box data ───────────────────────────────────────────────────────────────
   const BOXES = [
-    { name: 'XS', dims: [10, 10, 10], cost: 1 },
-    { name: 'S',  dims: [20, 15, 10], cost: 2 },
-    { name: 'M',  dims: [30, 20, 15], cost: 3 },
-    { name: 'L',  dims: [40, 30, 20], cost: 4 },
-    { name: 'XL', dims: [50, 40, 30], cost: 5 },
+    { name: 'XS', cost: 1 },
+    { name: 'S',  cost: 2 },
+    { name: 'M',  cost: 3 },
+    { name: 'L',  cost: 4 },
+    { name: 'XL', cost: 5 },
   ];
-
-  function selectBox(h, w, l) {
-    const piece = [h, w, l].sort((a, b) => b - a);
-    for (const box of BOXES) {
-      const bd = [...box.dims].sort((a, b) => b - a);
-      if (piece[0] <= bd[0] && piece[1] <= bd[1] && piece[2] <= bd[2]) return box;
-    }
-    return null;
-  }
 
   // ─── Read inputs ────────────────────────────────────────────────────────────
   function readInputs() {
-    const n = id => parseFloat(document.getElementById(id).value) || 0;
-    const i = id => parseInt(document.getElementById(id).value)   || 0;
+    const n  = id => parseFloat(document.getElementById(id).value) || 0;
+    const i  = id => parseInt(document.getElementById(id).value)   || 0;
+    const boxName = document.getElementById('box-size').value || 'S';
+    const box = BOXES.find(b => b.name === boxName) || BOXES[1];
     return {
-      weight:           n('weight'),
-      print_h:          i('print-h'),
-      print_min:        i('print-min'),
-      filament_price:   n('filament-price'),
-      working_h:        n('working-h'),
-      working_days:     n('working-days'),
-      labor_rate:       n('labor-rate'),
-      electricity_rate: n('electricity-rate'),
-      printer_price:    n('printer-price'),
-      failure_rate:     n('failure-rate'),
-      postproc_hours:   n('postproc-hours'),
-      accessories_cost: n('accessories-cost'),
-      piece_h:          n('piece-h'),
-      piece_w:          n('piece-w'),
-      piece_l:          n('piece-l'),
-      packing_manual:   n('packing-manual'),
-      margin:           n('margin'),
-      selling_price:    n('selling-price'),
+      weight:            n('weight'),
+      pieces_per_cycle:  Math.max(1, i('pieces-per-cycle') || 1),
+      print_h:           i('print-h'),
+      print_min:         i('print-min'),
+      filament_price:    n('filament-price'),
+      working_h:         n('working-h'),
+      working_days:      n('working-days'),
+      labor_rate:        n('labor-rate'),
+      electricity_rate:  n('electricity-rate'),
+      printer_price:     n('printer-price'),
+      failure_rate:      n('failure-rate'),
+      postproc_minutes:  n('postproc-minutes'),
+      accessories_cost:  n('accessories-cost'),
+      box,
+      margin:            n('margin'),
+      selling_price:     n('selling-price'),
     };
   }
 
@@ -983,15 +957,16 @@
     let ok = true;
     const fail = (inpId, errId) => { flagError(inpId, errId); ok = false; };
 
-    if (inp.weight           <= 0)                      fail('weight',        'err-weight');
-    if (inp.print_h === 0 && inp.print_min === 0)       fail('print-h',       'err-print-time');
-    if (inp.print_min < 0 || inp.print_min > 59)        fail('print-min',     'err-print-min');
-    if (inp.filament_price   <= 0)                      fail('filament-price','err-filament');
-    if (inp.working_h        <= 0)                      fail('working-h',     'err-working-h');
-    if (inp.working_days     <= 0)                      fail('working-days',  'err-working-days');
-    if (inp.failure_rate < 0 || inp.failure_rate > 99)  fail('failure-rate',  'err-failure');
-    if (inp.margin >= 100)                              fail('margin',        'err-margin');
-    if (inp.selling_price    <= 0)                      fail('selling-price', 'err-selling');
+    if (inp.weight              <= 0)                     fail('weight',          'err-weight');
+    if (inp.pieces_per_cycle    <  1)                     fail('pieces-per-cycle','err-pieces-per-cycle');
+    if (inp.print_h === 0 && inp.print_min === 0)         fail('print-h',         'err-print-time');
+    if (inp.print_min < 0 || inp.print_min > 59)          fail('print-min',       'err-print-min');
+    if (inp.filament_price      <= 0)                     fail('filament-price',  'err-filament');
+    if (inp.working_h           <= 0)                     fail('working-h',       'err-working-h');
+    if (inp.working_days        <= 0)                     fail('working-days',    'err-working-days');
+    if (inp.failure_rate < 0 || inp.failure_rate > 99)    fail('failure-rate',    'err-failure');
+    if (inp.margin >= 100)                                fail('margin',          'err-margin');
+    if (inp.selling_price       <= 0)                     fail('selling-price',   'err-selling');
 
     if (!ok) {
       const first = document.querySelector('input.err-input');
@@ -1002,78 +977,62 @@
 
   // ─── Core calculation ───────────────────────────────────────────────────────
   function calculate(inp) {
-    const print_time      = inp.print_h + inp.print_min / 60;
-    const failure_factor  = 1 / (1 - inp.failure_rate / 100);
+    const print_time     = inp.print_h + inp.print_min / 60;
+    const ppc            = Math.max(1, inp.pieces_per_cycle);
+    const failure_factor = inp.failure_rate < 100 ? 1 / (1 - inp.failure_rate / 100) : 1;
 
-    const filament_cost   = (inp.weight / 1000) * inp.filament_price;
-    const elec_cost       = print_time * inp.electricity_rate;
-    const depr_per_hour   = (inp.printer_price > 0 && inp.working_h > 0 && inp.working_days > 0)
-      ? inp.printer_price / (3 * 12 * inp.working_days * inp.working_h)
-      : 0;
-    const depr_piece      = depr_per_hour * print_time;
-    const print_labor     = print_time * inp.labor_rate;
+    // Per-piece costs: electricity/depreciation/labor are cycle costs split across pieces
+    const filament_cost  = (inp.weight / 1000) * inp.filament_price;
+    const elec_cost      = print_time > 0 ? (print_time * inp.electricity_rate) / ppc : 0;
+    const depr_per_hour  = (inp.printer_price > 0 && inp.working_h > 0 && inp.working_days > 0)
+      ? inp.printer_price / (3 * 12 * inp.working_days * inp.working_h) : 0;
+    const depr_piece     = print_time > 0 ? (depr_per_hour * print_time) / ppc : 0;
+    const print_labor    = print_time > 0 ? (print_time * inp.labor_rate) / ppc : 0;
 
-    const filament_adj    = filament_cost * failure_factor;
-    const elec_adj        = elec_cost     * failure_factor;
-    const depr_adj        = depr_piece    * failure_factor;
-    const labor_adj       = print_labor   * failure_factor;
+    const filament_adj   = filament_cost * failure_factor;
+    const elec_adj       = elec_cost     * failure_factor;
+    const depr_adj       = depr_piece    * failure_factor;
+    const labor_adj      = print_labor   * failure_factor;
 
-    const post_proc_cost  = inp.postproc_hours * inp.labor_rate;
-
-    // Packing
-    const hasDims = inp.piece_h > 0 && inp.piece_w > 0 && inp.piece_l > 0;
-    let box           = null;
-    let packing_cost  = 0;
-    let box_overflow  = false;
-    if (hasDims) {
-      box = selectBox(inp.piece_h, inp.piece_w, inp.piece_l);
-      if (box) {
-        packing_cost = box.cost;
-      } else {
-        box_overflow = true;
-        packing_cost = inp.packing_manual;
-      }
-    }
+    const post_proc_cost = (inp.postproc_minutes / 60) * inp.labor_rate;
+    const packing_cost   = inp.box ? inp.box.cost : 0;
 
     const total_cost = filament_adj + elec_adj + depr_adj + labor_adj
       + post_proc_cost + inp.accessories_cost + packing_cost;
 
-    const suggested_price = inp.margin < 100
+    const suggested_price = inp.margin < 100 && inp.margin >= 0
       ? total_cost / (1 - inp.margin / 100)
       : total_cost;
 
-    // Capacity
-    const pieces_per_day   = print_time > 0 ? Math.floor(inp.working_h / print_time) : 0;
+    // Capacity: full cycles per day × pieces per cycle
+    const cycles_per_day   = print_time > 0 ? Math.floor(inp.working_h / print_time) : 0;
+    const pieces_per_day   = cycles_per_day * ppc;
     const pieces_per_month = pieces_per_day * inp.working_days;
     const no_capacity      = pieces_per_day === 0;
 
     // Revenue
-    const daily_revenue    = pieces_per_day   * inp.selling_price;
-    const monthly_revenue  = pieces_per_month * inp.selling_price;
-    const monthly_profit   = monthly_revenue  - pieces_per_month * total_cost;
-    const actual_margin    = monthly_revenue  > 0 ? (monthly_profit / monthly_revenue) * 100 : 0;
+    const daily_revenue   = pieces_per_day   * inp.selling_price;
+    const monthly_revenue = pieces_per_month * inp.selling_price;
+    const monthly_profit  = monthly_revenue  - pieces_per_month * total_cost;
+    const actual_margin   = monthly_revenue  > 0 ? (monthly_profit / monthly_revenue) * 100 : 0;
 
-    // Break-even
-    // Fixed: full operator wages (paid regardless of output) + machine monthly depreciation
-    const fixed_monthly = (inp.working_h * inp.working_days * inp.labor_rate)
+    // Break-even (fixed: wages + machine depreciation; variable: material/energy/accessories/packing/postproc)
+    const fixed_monthly      = (inp.working_h * inp.working_days * inp.labor_rate)
       + (inp.printer_price > 0 ? inp.printer_price / 36 : 0);
-
-    // Variable: per-piece material, energy, accessories, packing, post-processing labor
-    const variable_per_piece = filament_adj + elec_adj
-      + inp.accessories_cost + packing_cost + post_proc_cost;
-
-    const contribution    = inp.selling_price - variable_per_piece;
-    const no_breakeven    = contribution <= 0;
-    const breakeven_units = !no_breakeven ? Math.ceil(fixed_monthly / contribution) : null;
-    const breakeven_days  = (!no_breakeven && pieces_per_day > 0)
+    const variable_per_piece = filament_adj + elec_adj + inp.accessories_cost
+      + packing_cost + post_proc_cost;
+    const contribution       = inp.selling_price - variable_per_piece;
+    const no_breakeven       = contribution <= 0;
+    const breakeven_units    = !no_breakeven ? Math.ceil(fixed_monthly / contribution) : null;
+    const breakeven_days     = (!no_breakeven && pieces_per_day > 0)
       ? Math.ceil(breakeven_units / pieces_per_day) : null;
 
     return {
       filament_adj, elec_adj, depr_adj, labor_adj,
       post_proc_cost, accessories_cost: inp.accessories_cost,
-      packing_cost, box, box_overflow, hasDims,
+      packing_cost, box: inp.box,
       total_cost, suggested_price,
-      pieces_per_day, pieces_per_month, no_capacity,
+      cycles_per_day, pieces_per_day, pieces_per_month, no_capacity,
       daily_revenue, monthly_revenue, monthly_profit, actual_margin,
       fixed_monthly, variable_per_piece, contribution,
       breakeven_units, breakeven_days, no_breakeven,
@@ -1113,13 +1072,7 @@
     setText('r-accessories',     fmt(res.accessories_cost));
 
     const packingLabel = document.getElementById('r-packing-label');
-    if (res.box) {
-      packingLabel.textContent = `(${res.box.name})`;
-    } else if (res.box_overflow) {
-      packingLabel.textContent = `(${t('lbl_packing_manual')})`;
-    } else {
-      packingLabel.textContent = '';
-    }
+    packingLabel.textContent = res.box ? `(${res.box.name})` : '';
     setText('r-packing', fmt(res.packing_cost));
     setText('r-total',   fmt(res.total_cost));
 
@@ -1142,25 +1095,6 @@
       deprNote.style.display = 'block';
     } else {
       deprNote.style.display = 'none';
-    }
-
-    // Box info in packing section
-    const boxInfo          = document.getElementById('box-info');
-    const packingManualFld = document.getElementById('packing-manual-field');
-    if (res.hasDims) {
-      if (res.box) {
-        const dimStr = [...res.box.dims].sort((a,b) => b-a).join('×');
-        boxInfo.innerHTML = `<span class="box-badge">${t('box_selected')} ${res.box.name} — ${dimStr} cm — ${fmt(res.box.cost, 0)}</span>`;
-        boxInfo.style.display  = 'block';
-        packingManualFld.style.display = 'none';
-      } else {
-        boxInfo.innerHTML = `<div class="alert alert-warning">${t('warn_box_overflow')}</div>`;
-        boxInfo.style.display  = 'block';
-        packingManualFld.style.display = 'block';
-      }
-    } else {
-      boxInfo.style.display          = 'none';
-      packingManualFld.style.display = 'none';
     }
 
     // Capacity
@@ -1266,6 +1200,54 @@
     }
   }
 
+  // ─── Live update ─────────────────────────────────────────────────────────────
+  function liveUpdate() {
+    const inp = readInputs();
+    const ready = inp.weight > 0
+      && (inp.print_h > 0 || inp.print_min > 0)
+      && inp.filament_price > 0
+      && inp.working_h > 0
+      && inp.working_days > 0
+      && inp.selling_price > 0
+      && inp.failure_rate < 100;
+    if (!ready) return;
+    lastInputs = inp;
+    lastResult = calculate(inp);
+    renderResults(lastResult, lastInputs, false);
+  }
+
+  // ─── Dynamic margin ↔ price sync ─────────────────────────────────────────────
+  let syncing = false;
+
+  function syncPriceFromMargin() {
+    if (syncing) return;
+    const marginVal = parseFloat(document.getElementById('margin').value);
+    if (isNaN(marginVal) || marginVal >= 100 || marginVal < 0) return;
+    const inp = readInputs();
+    if (inp.weight <= 0 || inp.filament_price <= 0 || inp.working_h <= 0 || inp.working_days <= 0) return;
+    const res = calculate(inp);
+    if (res.total_cost <= 0) return;
+    syncing = true;
+    document.getElementById('selling-price').value = (res.total_cost / (1 - marginVal / 100)).toFixed(2);
+    syncing = false;
+  }
+
+  function syncMarginFromPrice() {
+    if (syncing) return;
+    const priceVal = parseFloat(document.getElementById('selling-price').value);
+    if (isNaN(priceVal) || priceVal <= 0) return;
+    const inp = readInputs();
+    if (inp.weight <= 0 || inp.filament_price <= 0 || inp.working_h <= 0 || inp.working_days <= 0) return;
+    const res = calculate(inp);
+    if (res.total_cost <= 0 || res.total_cost >= priceVal) {
+      document.getElementById('margin').value = '0';
+      return;
+    }
+    syncing = true;
+    document.getElementById('margin').value = ((1 - res.total_cost / priceVal) * 100).toFixed(1);
+    syncing = false;
+  }
+
   // ─── Calculate handler ───────────────────────────────────────────────────────
   function onCalculate() {
     clearErrors();
@@ -1280,11 +1262,33 @@
   document.addEventListener('DOMContentLoaded', () => {
     lang = detectLang();
     applyLang(lang);
+
     document.getElementById('btn-en').addEventListener('click', () => applyLang('en'));
     document.getElementById('btn-pt').addEventListener('click', () => applyLang('pt'));
     document.getElementById('btn-calculate').addEventListener('click', onCalculate);
     document.getElementById('btn-export').addEventListener('click', exportPDF);
     document.getElementById('ref-url-input').addEventListener('input', onRefUrl);
+
+    // Margin ↔ price dynamic sync
+    document.getElementById('margin').addEventListener('input', () => {
+      syncPriceFromMargin();
+      liveUpdate();
+    });
+    document.getElementById('selling-price').addEventListener('input', () => {
+      syncMarginFromPrice();
+      liveUpdate();
+    });
+
+    // Live update on all other inputs
+    const liveIds = [
+      'weight','pieces-per-cycle','print-h','print-min','filament-price',
+      'working-h','working-days','labor-rate','electricity-rate',
+      'printer-price','failure-rate','postproc-minutes','accessories-cost',
+    ];
+    liveIds.forEach(id => {
+      document.getElementById(id).addEventListener('input', liveUpdate);
+    });
+    document.getElementById('box-size').addEventListener('change', liveUpdate);
   });
   </script>
 </body>
