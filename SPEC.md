@@ -117,8 +117,7 @@ e log| Logo | Fetch from Duo3DLab's Instagram profile — [https://www.instagram
 |-------|------|------|------------|---------|-------|
 | Piece weight | number | g | > 0 | — | Weight of one printed piece |
 | Pieces per printing cycle | number | — | ≥ 1, integer | **1** | How many pieces are printed simultaneously per cycle |
-| Print time — hours | number | h | ≥ 0, integer | — | |
-| Print time — minutes | number | min | 0–59, integer | — | At least one of h/min must be > 0 |
+| Print time | number×2 | h / min | hours ≥ 0 integer; minutes 0–59 integer; combined > 0 | — | Single labeled group: two inputs side by side under one "Print time" label, each with an inline unit suffix ("hours" / "minutes") |
 | Filament price | number | $/kg | > 0 | — | |
 
 ### Section 2 — Machine & Operations
@@ -164,10 +163,11 @@ The dropdown shows size, dimensions, and cost for each option. Selecting a size 
 
 | Field | Type | Unit | Validation | Notes |
 |-------|------|------|------------|-------|
-| Desired profit margin | number | % | 0–99 | Typing here auto-calculates and fills the selling price field |
-| Your selling price | number | $ | > 0 | Typing here auto-calculates and fills the margin field |
+| Profit margin / Filament | number | % | 0–99 | Margin applied over filament cost (failure-adjusted). Changing this field auto-calculates and fills the selling price field. |
+| Profit margin / Accessories | number | % | 0–99 | Margin applied over accessories cost. |
+| Your selling price | number | $ | > 0 | Typing here auto-calculates and fills the filament margin field (accessories margin is held fixed). |
 
-The two fields are dynamically linked: editing one immediately derives and updates the other using `total_cost` calculated from the current form values. The Calculate button is still available for an explicit full recalculation with validation.
+The filament margin and the selling price are dynamically linked: editing either one immediately derives and updates the other using the current form values. The accessories margin is independent. The Calculate button is still available for an explicit full recalculation with validation.
 
 ---
 
@@ -209,11 +209,24 @@ total_cost = filament_adj + electricity_adj + depreciation_adj
 
 ### 5.4 Suggested selling price
 
+Each margin is applied only to its own cost component; all other costs are passed through at face value.
+
 ```
-suggested_price = total_cost / (1 − profit_margin / 100)
+filament_component    = filament_adj      / (1 − margin_filament    / 100)
+accessories_component = accessories_cost  / (1 − margin_accessories / 100)
+
+suggested_price = filament_component + electricity_adj + depreciation_adj
+                + printing_labor_adj + post_proc_cost
+                + accessories_component + packing_cost
 ```
 
-Edge case: if `profit_margin = 100`, show error *"Margin cannot be 100%."*
+Edge case: if `margin_filament = 100` or `margin_accessories = 100`, show error *"Margin cannot be 100%."*
+
+**Reverse calculation (selling price → filament margin):**
+```
+margin_filament = (1 − filament_adj / (selling_price − other_costs)) × 100
+```
+where `other_costs = electricity_adj + depreciation_adj + printing_labor_adj + post_proc_cost + accessories_component + packing_cost`.
 
 ### 5.5 Production capacity
 
@@ -363,7 +376,11 @@ Each slot contains real linked logo images (not placeholder divs). The top banne
 | `lbl_weight` | Piece weight (g) | Peso da peça (g) |
 | `lbl_filament` | Filament price ($/kg) | Preço do filamento ($/kg) |
 | `lbl_failure` | Failure rate (%) | Taxa de falha (%) |
-| `lbl_margin` | Profit margin (%) | Margem de lucro (%) |
+| `lbl_print_time` | Print time | Tempo de impressão |
+| `lbl_hours` | hours | horas |
+| `lbl_minutes` | minutes | minutos |
+| `lbl_margin_filament` | Profit margin / Filament (%) | Margem de lucro/filamento (%) |
+| `lbl_margin_accessories` | Profit margin / Accessories (%) | Margem de lucro/Acessórios (%) |
 | `lbl_selling` | Your selling price ($) | Seu preço de venda ($) |
 | `result_total_cost` | Total cost per piece | Custo total por peça |
 | `result_suggested` | Suggested price | Preço sugerido |

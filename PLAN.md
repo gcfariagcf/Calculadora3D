@@ -19,14 +19,14 @@ Tasks:
   - `#ad-sidebar` — sidebar ad placeholder div inside `#sidebar`
   - `<footer>` — "Powered by Duo3DLab"
 - [ ] Inside `#content`, the form `<form id="calc-form">` with five `<section>` elements:
-  - `#s-print` — Print Parameters (weight, pieces_per_cycle[default=1], print_h, print_min, filament_price)
+  - `#s-print` — Print Parameters (weight, pieces_per_cycle[default=1], print_h+print_min under a shared "Print time" label with inline unit suffixes, filament_price)
   - `.ad-inline` (ad 1 — Ana Faria Ateliê) — hidden on desktop, shown on mobile
   - `#s-machine` — Machine & Operations (working_h, working_days, labor_rate, elec_rate, printer_price, failure_rate[default=10])
   - `.ad-inline` (ad 2 — Nothavel) — hidden on desktop, shown on mobile
   - `#s-postproc` — Post-Processing (postproc_minutes — unit is minutes, not hours)
   - `.ad-inline` (ad 3 — Panda Juju) — hidden on desktop, shown on mobile
   - `#s-packing` — Accessories & Packing (accessories_cost, box_size select[default=S])
-  - `#s-pricing` — Pricing (margin, selling_price)
+  - `#s-pricing` — Pricing (margin_filament, margin_accessories, selling_price)
 - [ ] `<button id="btn-calculate">` below the form
 - [ ] `#results` div (hidden by default) containing five result cards:
   - `#res-breakdown` — cost breakdown table
@@ -132,7 +132,7 @@ Tasks:
 - [ ] `function calculate(inputs)` — pure function; cycle costs (electricity, depreciation, printing labor) are divided by `pieces_per_cycle`; `post_proc_cost` uses `postproc_minutes / 60`; returns full results object
 - [ ] Handle all edge cases:
   - `failure_rate = 100` → error
-  - `profit_margin ≥ 100` → error
+  - `margin_filament ≥ 100` or `margin_accessories ≥ 100` → error
   - `print_time_h > working_hours` → `pieces_per_day = 0`, flag `warn_no_capacity`
   - `contribution_margin ≤ 0` → flag `warn_no_breakeven`
 - [ ] Store last result in `let lastResult = null` for re-render on lang switch
@@ -153,7 +153,8 @@ Tasks:
   - print_h + print_min: combined print time must be > 0
   - print_min: 0–59
   - failure_rate: 0–99
-  - profit_margin: 0–99
+  - margin_filament: 0–99
+  - margin_accessories: 0–99
   - pieces_per_cycle: ≥ 1 integer (default 1)
   - postproc_minutes: ≥ 0
 - [ ] For each error: add CSS error class to input, insert `<span class="field-error" data-i18n="...">` below it

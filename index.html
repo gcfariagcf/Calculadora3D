@@ -291,6 +291,9 @@
     @media (max-width: 480px) {
       .field-row, .field-row-3 { grid-template-columns: 1fr; }
     }
+    .input-suffix-wrap { display: flex; align-items: center; gap: .45rem; }
+    .input-suffix-wrap input { flex: 1; min-width: 0; }
+    .input-suffix { font-size: .8rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
 
     /* ── Box reference table ── */
     details { margin-top: .6rem; }
@@ -545,17 +548,20 @@
               <span class="field-error" id="err-pieces-per-cycle" data-i18n="err_min_one"></span>
             </div>
           </div>
-          <div class="field-row">
-            <div class="field">
-              <label for="print-h" data-i18n="lbl_print_h"></label>
-              <input type="number" id="print-h" min="0" step="1" value="0" placeholder="0">
-              <span class="field-error" id="err-print-time" data-i18n="err_print_time"></span>
+          <div class="field">
+            <label data-i18n="lbl_print_time"></label>
+            <div class="field-row" style="margin-top:.3rem;">
+              <div class="input-suffix-wrap">
+                <input type="number" id="print-h" min="0" step="1" value="0" placeholder="0">
+                <span class="input-suffix" data-i18n="lbl_hours"></span>
+              </div>
+              <div class="input-suffix-wrap">
+                <input type="number" id="print-min" min="0" max="59" step="1" value="0" placeholder="0">
+                <span class="input-suffix" data-i18n="lbl_minutes"></span>
+              </div>
             </div>
-            <div class="field">
-              <label for="print-min" data-i18n="lbl_print_min"></label>
-              <input type="number" id="print-min" min="0" max="59" step="1" value="0" placeholder="0">
-              <span class="field-error" id="err-print-min" data-i18n="err_minutes"></span>
-            </div>
+            <span class="field-error" id="err-print-time" data-i18n="err_print_time"></span>
+            <span class="field-error" id="err-print-min" data-i18n="err_minutes"></span>
           </div>
           <div class="field">
             <label for="filament-price" data-i18n="lbl_filament"></label>
@@ -655,11 +661,16 @@
         <!-- Section 5: Pricing -->
         <section class="card" id="s-pricing">
           <h2 data-i18n="section_pricing"></h2>
-          <div class="field-row">
+          <div class="field-row-3">
             <div class="field">
-              <label for="margin" data-i18n="lbl_margin"></label>
-              <input type="number" id="margin" min="0" max="99" step="1" value="0" placeholder="e.g. 30">
-              <span class="field-error" id="err-margin" data-i18n="err_margin_100"></span>
+              <label for="margin-filament" data-i18n="lbl_margin_filament"></label>
+              <input type="number" id="margin-filament" min="0" max="99" step="1" value="0" placeholder="e.g. 30">
+              <span class="field-error" id="err-margin-filament" data-i18n="err_margin_100"></span>
+            </div>
+            <div class="field">
+              <label for="margin-accessories" data-i18n="lbl_margin_accessories"></label>
+              <input type="number" id="margin-accessories" min="0" max="99" step="1" value="0" placeholder="e.g. 20">
+              <span class="field-error" id="err-margin-accessories" data-i18n="err_margin_100"></span>
             </div>
             <div class="field">
               <label for="selling-price" data-i18n="lbl_selling"></label>
@@ -809,8 +820,9 @@
       section_packing:    'Accessories & Packing',
       section_pricing:    'Pricing',
       lbl_weight:         'Piece weight (g)',
-      lbl_print_h:        'Print time — hours',
-      lbl_print_min:      'Print time — minutes',
+      lbl_print_time:     'Print time',
+      lbl_hours:          'hours',
+      lbl_minutes:        'minutes',
       lbl_filament:       'Filament price ($/kg)',
       lbl_working_h:      'Working hours per day',
       lbl_working_days:   'Working days per month',
@@ -822,7 +834,8 @@
       lbl_postproc:       'Post-processing time per unit (min)',
       lbl_accessories:    'Accessories cost per unit ($)',
       lbl_box_size:       'Box size',
-      lbl_margin:         'Profit margin (%)',
+      lbl_margin_filament:     'Profit margin / Filament (%)',
+      lbl_margin_accessories:  'Profit margin / Accessories (%)',
       lbl_selling:        'Your selling price ($)',
       err_min_one:        'Must be at least 1',
       btn_calculate:      'Calculate',
@@ -878,8 +891,9 @@
       section_packing:    'Acessórios e Embalagem',
       section_pricing:    'Precificação',
       lbl_weight:         'Peso da peça (g)',
-      lbl_print_h:        'Tempo de impressão — horas',
-      lbl_print_min:      'Tempo de impressão — minutos',
+      lbl_print_time:     'Tempo de impressão',
+      lbl_hours:          'horas',
+      lbl_minutes:        'minutos',
       lbl_filament:       'Preço do filamento ($/kg)',
       lbl_working_h:      'Horas de trabalho por dia',
       lbl_working_days:   'Dias de trabalho por mês',
@@ -891,7 +905,8 @@
       lbl_postproc:       'Tempo de pós-processamento por unidade (min)',
       lbl_accessories:    'Custo de acessórios por unidade ($)',
       lbl_box_size:       'Tamanho da caixa',
-      lbl_margin:         'Margem de lucro (%)',
+      lbl_margin_filament:     'Margem de lucro/filamento (%)',
+      lbl_margin_accessories:  'Margem de lucro/Acessórios (%)',
       lbl_selling:        'Seu preço de venda ($)',
       err_min_one:        'Deve ser pelo menos 1',
       btn_calculate:      'Calcular',
@@ -1032,8 +1047,9 @@
       postproc_minutes:  n('postproc-minutes'),
       accessories_cost:  n('accessories-cost'),
       box,
-      margin:            n('margin'),
-      selling_price:     n('selling-price'),
+      margin_filament:    n('margin-filament'),
+      margin_accessories: n('margin-accessories'),
+      selling_price:      n('selling-price'),
     };
   }
 
@@ -1061,9 +1077,10 @@
     if (inp.filament_price      <= 0)                     fail('filament-price',  'err-filament');
     if (inp.working_h           <= 0)                     fail('working-h',       'err-working-h');
     if (inp.working_days        <= 0)                     fail('working-days',    'err-working-days');
-    if (inp.failure_rate < 0 || inp.failure_rate > 99)    fail('failure-rate',    'err-failure');
-    if (inp.margin >= 100)                                fail('margin',          'err-margin');
-    if (inp.selling_price       <= 0)                     fail('selling-price',   'err-selling');
+    if (inp.failure_rate < 0 || inp.failure_rate > 99)    fail('failure-rate',       'err-failure');
+    if (inp.margin_filament    >= 100)                    fail('margin-filament',    'err-margin-filament');
+    if (inp.margin_accessories >= 100)                    fail('margin-accessories', 'err-margin-accessories');
+    if (inp.selling_price      <= 0)                      fail('selling-price',      'err-selling');
 
     if (!ok) {
       const first = document.querySelector('input.err-input');
@@ -1097,9 +1114,16 @@
     const total_cost = filament_adj + elec_adj + depr_adj + labor_adj
       + post_proc_cost + inp.accessories_cost + packing_cost;
 
-    const suggested_price = inp.margin < 100 && inp.margin >= 0
-      ? total_cost / (1 - inp.margin / 100)
-      : total_cost;
+    const mf = inp.margin_filament;
+    const ma = inp.margin_accessories;
+    const filament_component    = (mf >= 0 && mf < 100)
+      ? filament_adj / (1 - mf / 100)
+      : filament_adj;
+    const accessories_component = (ma >= 0 && ma < 100)
+      ? inp.accessories_cost / (1 - ma / 100)
+      : inp.accessories_cost;
+    const suggested_price = filament_component + elec_adj + depr_adj + labor_adj
+      + post_proc_cost + accessories_component + packing_cost;
 
     // Capacity: full cycles per day × pieces per cycle
     const cycles_per_day   = print_time > 0 ? Math.floor(inp.working_h / print_time) : 0;
@@ -1318,14 +1342,15 @@
 
   function syncPriceFromMargin() {
     if (syncing) return;
-    const marginVal = parseFloat(document.getElementById('margin').value);
-    if (isNaN(marginVal) || marginVal >= 100 || marginVal < 0) return;
+    const mf = parseFloat(document.getElementById('margin-filament').value);
+    const ma = parseFloat(document.getElementById('margin-accessories').value);
+    if (isNaN(mf) || mf >= 100 || mf < 0) return;
+    if (isNaN(ma) || ma >= 100 || ma < 0) return;
     const inp = readInputs();
     if (inp.weight <= 0 || inp.filament_price <= 0 || inp.working_h <= 0 || inp.working_days <= 0) return;
     const res = calculate(inp);
-    if (res.total_cost <= 0) return;
     syncing = true;
-    document.getElementById('selling-price').value = (res.total_cost / (1 - marginVal / 100)).toFixed(2);
+    document.getElementById('selling-price').value = res.suggested_price.toFixed(2);
     syncing = false;
   }
 
@@ -1336,12 +1361,20 @@
     const inp = readInputs();
     if (inp.weight <= 0 || inp.filament_price <= 0 || inp.working_h <= 0 || inp.working_days <= 0) return;
     const res = calculate(inp);
-    if (res.total_cost <= 0 || res.total_cost >= priceVal) {
-      document.getElementById('margin').value = '0';
+    const ma = inp.margin_accessories;
+    const accessories_component = (ma >= 0 && ma < 100)
+      ? inp.accessories_cost / (1 - ma / 100)
+      : inp.accessories_cost;
+    const other_costs = res.elec_adj + res.depr_adj + res.labor_adj
+      + res.post_proc_cost + accessories_component + res.packing_cost;
+    const filament_for_price = priceVal - other_costs;
+    if (filament_for_price <= 0 || res.filament_adj <= 0) {
+      document.getElementById('margin-filament').value = '0';
       return;
     }
+    const derived = (1 - res.filament_adj / filament_for_price) * 100;
     syncing = true;
-    document.getElementById('margin').value = ((1 - res.total_cost / priceVal) * 100).toFixed(1);
+    document.getElementById('margin-filament').value = Math.max(0, Math.min(99, derived)).toFixed(1);
     syncing = false;
   }
 
@@ -1368,7 +1401,11 @@
     document.getElementById('ref-url-input').addEventListener('input', onRefUrl);
 
     // Margin ↔ price dynamic sync
-    document.getElementById('margin').addEventListener('input', () => {
+    document.getElementById('margin-filament').addEventListener('input', () => {
+      syncPriceFromMargin();
+      liveUpdate();
+    });
+    document.getElementById('margin-accessories').addEventListener('input', () => {
       syncPriceFromMargin();
       liveUpdate();
     });
